@@ -50,6 +50,8 @@ public class ClaudeAssistService extends AccessibilityService {
     private static final String[] STOP_WEAK = {"parar", "stop", "finalizar", "sair", "end", "fechar", "close",
             "desligar"};
     private static final String[] STOP_EXCLUDE = {"enviar", "send", "teclado", "keyboard"};
+    private static final String[] NONE = {};
+    private static final long CLOSE_REQUEST_MS = 20000;
 
     static volatile ClaudeAssistService instance;
     static volatile String lastAction = "";
@@ -60,19 +62,35 @@ public class ClaudeAssistService extends AccessibilityService {
     private static volatile long voiceButtonSeenAt;
     private static volatile int closeBaseline = -1;
     private static volatile long closeSeenAt;
+    /** A sessão foi pedida pelo relógio: o andamento vai para a tela dele. */
+    private static volatile boolean fromWatch;
+    /** O relógio pediu para encerrar e o Claude está vindo para a frente. */
+    private static volatile boolean closePending;
+    private static volatile long closeRequestedAt;
+    private static volatile long closeButtonSeenAt;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable scanRunnable = this::scan;
+    private final Runnable closeTimeout = this::onCloseTimeout;
     private boolean scanScheduled;
     private long lastSnapshotAt;
 
     /** Chamado pelo serviço de escuta logo antes de abrir o Claude. */
     static void beginSession(Context c) {
+        beginSession(c, false);
+    }
+
+    /**
+     * Começa uma sessão. Pelo relógio, o modo de voz liga sempre (é o motivo de chamar pelo pulso).
+     */
+    static void beginSession(Context c, boolean watch) {
         sessionStartedAt = SystemClock.elapsedRealtime();
-        voicePending = Prefs.isAutoVoice(c);
+        fromWatch = watch;
+        voicePending = watch || Prefs.isAutoVoice(c);
         voiceButtonSeenAt = 0;
         closeBaseline = -1;
         closeSeenAt = 0;
+        closePending = false;
         setAction(voicePending
                 ? "Abrindo o Claude para ligar o modo de voz…"
                 : "Abrindo o Claude.");
@@ -154,6 +172,10 @@ public class ClaudeAssistService extends AccessibilityService {
         }
         if (!session) return;
 
+        if (closePending) {
+            handleCloseRequest(nodes, now);
+            return;
+        }
         if (voicePending) {
             handleVoiceStart(nodes, now);
             return; // enquanto espera o modo de voz, não procura o "fechar"
@@ -165,6 +187,17 @@ public class ClaudeAssistService extends AccessibilityService {
         if (now - sessionStartedAt > VOICE_WINDOW_MS) {
             voicePending = false;
             setAction("Não achei o botão do modo de voz. No Ei Claude, use \"Ajustar botões do Claude\".");
+            tellWatch("sem_botao", "Abri o Claude, mas não achei o botão do modo de voz. "
+                    + "Toque na onda sonora no celular.");
+            return;
+        }
+        // O modo de voz já está ligado (o relógio chamou de novo, por exemplo): não toca em nada.
+        if (findButton(nodes, Prefs.getStopButton(this), STOP_STRONG, NONE, STOP_EXCLUDE) != null) {
+            voicePending = false;
+            closeBaseline = -1;
+            closeSeenAt = 0;
+            setAction("O modo de voz já estava ligado.");
+            tellWatch("ja_aberto", "O Claude já está no modo de voz. Pode falar com o celular!");
             return;
         }
         AccessibilityNodeInfo button = findButton(nodes, Prefs.getVoiceButton(this),
@@ -185,6 +218,7 @@ public class ClaudeAssistService extends AccessibilityService {
             closeBaseline = -1;
             closeSeenAt = 0;
             setAction("Toquei no botão do modo de voz (\"" + label + "\").");
+            tellWatch("voz", "Modo de voz ligado. Pode falar com o celular!");
         }
     }
 
@@ -231,6 +265,114 @@ public class ClaudeAssistService extends AccessibilityService {
         setAction(stopped
                 ? "Ouvi \"fechar\": encerrei o modo de voz e voltei para a tela inicial."
                 : "Ouvi \"fechar\": voltei para a tela inicial (não achei o botão de encerrar).");
+        tellWatch("fechado", stopped
+                ? "Encerrei o Claude."
+                : "Voltei para a tela inicial do celular, mas não achei o botão de encerrar do Claude.");
+    }
+
+    // ------------------------------------------------------------------ pedidos do relógio
+
+    /** O relógio pediu para encerrar. Thread principal. */
+    static void closeFromWatch(Context c) {
+        ClaudeAssistService s = instance;
+        if (s == null) {
+            WatchBridge.send(c, "erro", "Não consigo encerrar: a Acessibilidade do Ei Claude está desligada "
+                    + "no celular.");
+            return;
+        }
+        s.requestClose();
+    }
+
+    private void requestClose() {
+        fromWatch = true;
+        voicePending = false;
+        AccessibilityNodeInfo root = activeClaudeRoot();
+        if (root != null) {
+            closePending = false;
+            closeClaude(collect(root));
+            return;
+        }
+        // O Claude não está na tela. Se algum app está usando o microfone, provavelmente é o modo de
+        // voz rodando por trás: traz o Claude para a frente e encerra quando o botão aparecer.
+        if (!WakeService.otherAppRecording(this)) {
+            tellWatch("nada", "O Claude não está aberto no celular.");
+            return;
+        }
+        long now = SystemClock.elapsedRealtime();
+        sessionStartedAt = now;
+        closePending = true;
+        closeRequestedAt = now;
+        closeButtonSeenAt = 0;
+        handler.removeCallbacks(closeTimeout);
+        handler.postDelayed(closeTimeout, CLOSE_REQUEST_MS + 500);
+        if (!WakeService.launchClaude(this)) {
+            closePending = false;
+            handler.removeCallbacks(closeTimeout);
+            tellWatch("erro", "Não consegui trazer o Claude para a frente para encerrar.");
+            return;
+        }
+        setAction("O relógio pediu para encerrar: trazendo o Claude para a frente…");
+        tellWatch("abrindo", WatchBridge.isLocked(this)
+                ? "Desbloqueie o celular para eu encerrar o Claude."
+                : "Trazendo o Claude para a frente para encerrar…");
+    }
+
+    private void handleCloseRequest(List<AccessibilityNodeInfo> nodes, long now) {
+        if (now - closeRequestedAt > CLOSE_REQUEST_MS) {
+            onCloseTimeout();
+            return;
+        }
+        AccessibilityNodeInfo stop = findButton(nodes, Prefs.getStopButton(this),
+                STOP_STRONG, STOP_WEAK, STOP_EXCLUDE);
+        if (stop == null) {
+            closeButtonSeenAt = 0;
+            rescheduleScan(1000); // espera a tela do modo de voz aparecer
+            return;
+        }
+        if (closeButtonSeenAt == 0) {
+            closeButtonSeenAt = now; // deixa a tela assentar antes de tocar
+            rescheduleScan(VOICE_SETTLE_MS + 50);
+            return;
+        }
+        if (now - closeButtonSeenAt < VOICE_SETTLE_MS) {
+            rescheduleScan(VOICE_SETTLE_MS);
+            return;
+        }
+        closePending = false;
+        handler.removeCallbacks(closeTimeout);
+        closeClaude(nodes);
+    }
+
+    private void onCloseTimeout() {
+        if (!closePending) return;
+        closePending = false;
+        handler.removeCallbacks(closeTimeout);
+        AccessibilityNodeInfo root = activeClaudeRoot();
+        if (root != null) {
+            closeClaude(collect(root)); // tenta mesmo assim: volta para a tela inicial
+            return;
+        }
+        sessionStartedAt = 0;
+        setAction("Não consegui encerrar o Claude pelo relógio.");
+        tellWatch("erro", "Não consegui encerrar o Claude. Se ele ainda estiver aberto, diga \"fechar\".");
+    }
+
+    /** Raiz da janela ativa, só se for o Claude. */
+    private AccessibilityNodeInfo activeClaudeRoot() {
+        AccessibilityNodeInfo root;
+        try {
+            root = getRootInActiveWindow();
+        } catch (Throwable t) {
+            return null;
+        }
+        if (root == null) return null;
+        CharSequence pkg = root.getPackageName();
+        if (pkg == null || !WakeService.CLAUDE_PACKAGE.contentEquals(pkg)) return null;
+        return root;
+    }
+
+    private void tellWatch(String code, String text) {
+        if (fromWatch) WatchBridge.send(this, code, text);
     }
 
     private List<String> foldedClosePhrases() {

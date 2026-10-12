@@ -9,19 +9,16 @@ android {
     compileSdk 36
 
     defaultConfig {
-        // Id diferente do app do celular (com.eiclaude.app): assim, se o APK do relógio for
-        // aberto no celular por engano, ele nunca substitui o Ei Claude do celular.
-        applicationId 'com.eiclaude.relogio'
+        // Mesmo id e mesma chave do app do celular: o Google Play Services só deixa os dois
+        // conversarem (Data Layer) assim. Os números de versão do relógio ficam abaixo de 1000 e
+        // os do celular acima, então um APK nunca substitui o outro por engano.
+        applicationId 'com.eiclaude.app'
         minSdk 30
         targetSdk 34
         versionCode buildNumber
-        versionName "relogio-1.0.${buildNumber}"
-        ndk {
-            abiFilters 'arm64-v8a', 'armeabi-v7a'
-        }
+        versionName "relogio-${buildNumber}"
     }
 
-    // Chave fixa (a mesma do app do celular): versões novas instalam por cima da anterior.
     signingConfigs {
         fixa {
             storeFile file('../../app/eiclaude.keystore')
@@ -58,8 +55,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 dependencies {
-    // Reconhecimento de voz offline (reserva, se o relógio não tiver um reconhecedor próprio).
-    // Mesmas versões do app do celular, já confirmadas no Maven Central.
-    implementation 'net.java.dev.jna:jna:5.13.0@aar'
-    implementation 'com.alphacephei:vosk-android:0.3.47@aar'
+    // Conversa com o Ei Claude do celular (Wear OS Data Layer).
+    implementation 'com.google.android.gms:play-services-wearable:20.0.1'
 }

@@ -30,16 +30,6 @@ jobs:
         with:
           gradle-version: '8.13'
 
-      - name: Baixar o modelo de voz offline em português (Vosk)
-        run: |
-          curl -fL --retry 3 -o model.zip https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip
-          unzip -q model.zip
-          mkdir -p relogio/app/src/main/assets
-          rm -rf relogio/app/src/main/assets/model-pt
-          mv vosk-model-small-pt-0.3 relogio/app/src/main/assets/model-pt
-          echo "vosk-model-small-pt-0.3" > relogio/app/src/main/assets/model-pt/uuid
-          du -sh relogio/app/src/main/assets/model-pt
-
       - name: Compilar
         env:
           BUILD_NUMBER: ${{ github.run_number }}
@@ -71,5 +61,5 @@ jobs:
           ls -l "$APK"
           gh release create "relogio-v${BUILD_NUMBER}" "$APK" \
             --title "Ei Claude no relógio v${BUILD_NUMBER}" \
-            --notes "App para o Galaxy Watch (Wear OS). Instale no relógio pelo Wear Installer 2 (veja o README)." \
+            --notes "Controle remoto do Claude para o Galaxy Watch: instale no relógio pelo Wear Installer 2 (veja o README). Precisa do Ei Claude v4 ou mais novo no celular." \
             --latest=false

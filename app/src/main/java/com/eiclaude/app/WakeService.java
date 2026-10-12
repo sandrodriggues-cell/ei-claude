@@ -313,13 +313,24 @@ public class WakeService extends Service {
 
     /** Outro app gravando agora? (Não conta a detecção de "Ok Google"/"Oi Bixby" do sistema.) */
     private boolean otherAppIsRecording() {
-        AudioManager am = getSystemService(AudioManager.class);
+        return otherAppRecording(this, ownSessionIds);
+    }
+
+    /** Versão para fora do serviço (thread principal): desconta a própria escuta, se estiver ligada. */
+    static boolean otherAppRecording(Context c) {
+        WakeService s = current;
+        List<Integer> own = s != null ? new ArrayList<>(s.ownSessionIds) : new ArrayList<>();
+        return otherAppRecording(c, own);
+    }
+
+    private static boolean otherAppRecording(Context ctx, List<Integer> ownSessions) {
+        AudioManager am = ctx.getSystemService(AudioManager.class);
         if (am == null) return false;
         try {
             List<AudioRecordingConfiguration> configs = am.getActiveRecordingConfigurations();
             if (configs == null) return false;
             for (AudioRecordingConfiguration c : configs) {
-                if (ownSessionIds.contains(c.getClientAudioSessionId())) continue;
+                if (ownSessions.contains(c.getClientAudioSessionId())) continue;
                 if (c.getClientAudioSource() == HOTWORD_SOURCE) continue;
                 return true;
             }
@@ -440,35 +451,57 @@ public class WakeService extends Service {
         vibrate();
         ClaudeAssistService.beginSession(this);
 
-        Intent i = new Intent(this, LaunchActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        boolean launched = false;
-        if (Settings.canDrawOverlays(this)) {
-            try {
-                startActivity(i);
-                launched = true;
-            } catch (Throwable ignored) {
-                // tenta pelo serviço de acessibilidade abaixo
-            }
-        }
-        ClaudeAssistService assist = ClaudeAssistService.instance;
-        if (!launched && assist != null) {
-            try {
-                assist.startActivity(i);
-                launched = true;
-            } catch (Throwable ignored) {
-                // cai no aviso abaixo
-            }
-        }
-        if (launched) {
+        if (launchClaude(this)) {
             setStatus("Abrindo o Claude… A escuta volta quando o microfone ficar livre.");
         } else {
-            showOpenClaudeNotification();
+            showOpenClaudeNotification(this);
             setStatus("Falta liberar \"Aparecer sobre outros apps\". Toque no aviso para abrir o Claude.");
         }
 
         handler.removeCallbacks(resumeCheck);
         handler.postDelayed(resumeCheck, MIN_PAUSE_MS);
+    }
+
+    /**
+     * Abre a tela invisível que acende a tela, pede o desbloqueio e abre o Claude.
+     * Devolve false se o Android não deixou abrir a partir do segundo plano.
+     */
+    static boolean launchClaude(Context c) {
+        Intent i = new Intent(c, LaunchActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        if (Settings.canDrawOverlays(c)) {
+            try {
+                c.startActivity(i);
+                return true;
+            } catch (Throwable ignored) {
+                // tenta pelo serviço de acessibilidade abaixo
+            }
+        }
+        ClaudeAssistService assist = ClaudeAssistService.instance;
+        if (assist != null) {
+            try {
+                assist.startActivity(i);
+                return true;
+            } catch (Throwable ignored) {
+                // sem como abrir daqui
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Pedido do relógio: libera o microfone e pausa a escuta, como ao ouvir a frase de ativação.
+     * Chamar na thread principal.
+     */
+    static void pauseForClaude() {
+        WakeService s = current;
+        if (s == null || !running) return;
+        s.lastTriggerAt = SystemClock.elapsedRealtime();
+        s.stopCapture();
+        s.pausedForClaude = true;
+        s.setStatus("Abrindo o Claude pelo relógio… A escuta volta quando o microfone ficar livre.");
+        s.handler.removeCallbacks(s.resumeCheck);
+        s.handler.postDelayed(s.resumeCheck, MIN_PAUSE_MS);
     }
 
     /** Só volta a escutar quando nenhum outro app (o Claude, por exemplo) estiver gravando. */
@@ -532,18 +565,19 @@ public class WakeService extends Service {
         return b.build();
     }
 
-    private void showOpenClaudeNotification() {
-        Intent launch = new Intent(this, LaunchActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pi = PendingIntent.getActivity(this, 3, launch,
+    static void showOpenClaudeNotification(Context c) {
+        createChannels(c);
+        Intent launch = new Intent(c, LaunchActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pi = PendingIntent.getActivity(c, 3, launch,
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification n = new Notification.Builder(this, CHANNEL_ALERT)
+        Notification n = new Notification.Builder(c, CHANNEL_ALERT)
                 .setSmallIcon(R.drawable.ic_stat_mic)
                 .setContentTitle("Ei Claude")
                 .setContentText("Toque para abrir o Claude.")
                 .setAutoCancel(true)
                 .setContentIntent(pi)
                 .build();
-        notifySafely(this, NOTIF_ALERT, n);
+        notifySafely(c, NOTIF_ALERT, n);
     }
 
     static void createChannels(Context c) {

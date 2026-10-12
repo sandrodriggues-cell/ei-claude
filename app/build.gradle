@@ -12,7 +12,9 @@ android {
         applicationId 'com.eiclaude.app'
         minSdk 26
         targetSdk 34
-        versionCode buildNumber
+        // 1000 + N: o app do relógio usa o mesmo id (exigência da Data Layer) com números
+        // abaixo de 1000, então o APK do relógio nunca substitui este no celular por engano.
+        versionCode 1000 + buildNumber
         versionName "1.0.${buildNumber}"
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a'
@@ -59,4 +61,6 @@ dependencies {
     // Versões confirmadas no Maven Central (combinação usada na documentação do Vosk para Android).
     implementation 'net.java.dev.jna:jna:5.13.0@aar'
     implementation 'com.alphacephei:vosk-android:0.3.47@aar'
+    // Conversa com o app do relógio (Wear OS Data Layer).
+    implementation 'com.google.android.gms:play-services-wearable:20.0.1'
 }

@@ -40,41 +40,36 @@ O Google Play Protect pode bloquear a instalação de apps baixados pelo navegad
 - Depois de reiniciar o celular ou atualizar o app, o Android não deixa o microfone ligar sozinho em segundo plano: toque no aviso do Ei Claude para religar.
 - O modelo pequeno em português é leve, mas erra mais que os modelos grandes; use o modo teste e a sensibilidade para calibrar.
 
-## App do relógio (Galaxy Watch / Wear OS)
+## App do relógio (Galaxy Watch / Wear OS): controle remoto
 
-Na pasta `relogio/` fica um app separado para o relógio: você abre, fala, e o Claude responde falando, direto no pulso. Ele conversa com a API do Claude (não usa o app oficial, que não existe para relógio).
+Na pasta `relogio/` fica o app do relógio. Ele é um **controle remoto**: com um toque no relógio, o Ei Claude do celular abre o app oficial do Claude já no modo de voz, como quando você diz "Ei, Claude". **Não usa a API e não tem custo extra**: a conversa é a do seu plano, no app do celular.
 
-- **Abre já ouvindo.** Quando o Claude termina de responder, o relógio volta a ouvir sozinho.
-- **"Fechar", "encerrar" ou "tchau"** fecham o app. Tocar na tela interrompe a fala ou para de ouvir.
-- O APK é compilado pelo workflow **Compilar APK do relógio** e publicado em **Releases** como `EiClaudeRelogio-vN.apk` (o arquivo do celular continua sendo o `EiClaude-vN.apk`).
-- Use a `relogio-v3` ou mais nova. As `relogio-v1` e `relogio-v2` foram testes com o mesmo id do app do celular: não instale. (A `v3` do celular é igual à `v2`.)
+- **Ao abrir no relógio**, ele já chama o Claude no celular e mostra o andamento: "Abrindo…", "Claude ouvindo no celular" ou o que faltar.
+- **Encerrar o Claude** (botão no relógio) fecha o Claude no celular. Dizer "fechar" continua funcionando.
+- **A conversa é pelo celular:** você fala com o microfone do celular e a resposta sai nele (ou no fone Bluetooth conectado). O relógio não transmite o áudio do Claude.
+- O APK do relógio é o `EiClaudeRelogio-vN.apk` em **Releases** (versão 4 ou mais nova). O do celular continua sendo o `EiClaude-vN.apk` e precisa ser a **v4 ou mais nova**.
+- Os dois usam o mesmo id (`com.eiclaude.app`) e a mesma chave: é uma exigência do Google Play Services para o relógio e o celular conversarem. Os números de versão não se cruzam (relógio abaixo de 1000, celular acima), então um APK nunca substitui o outro por engano.
 
-### 1. Chave da API do Claude
+### 1. Atualizar o celular
 
-1. Entre em [platform.claude.com](https://platform.claude.com) com a sua conta e vá em **Settings › API keys › Create key**. A chave começa com `sk-ant-` e só aparece uma vez: copie.
-2. A API é cobrada à parte do plano do app. Créditos: **Settings › Billing › Buy credits**. Os planos Max incluem créditos mensais da API (Max 5x: US$ 100; Max 20x: US$ 200), que se ativam em claude.ai › Configurações › Cobrança › API credits › *Link organization*. O plano Pro não inclui.
-3. O app usa o Claude Haiku 5.5 por padrão (o mais rápido): US$ 0,10 por milhão de tokens de entrada e US$ 0,50 por milhão de saída, em pedidos de até 100 mil tokens ([preços oficiais](https://platform.claude.com/docs/en/about-claude/pricing)). Os ajustes do relógio mostram o total de tokens usados.
+Instale o `EiClaude-v4.apk` (ou mais novo) por cima do atual, pela página **Releases**. As permissões e a Acessibilidade continuam valendo.
 
 ### 2. Instalar no relógio (pelo celular, sem computador)
 
-1. No relógio: **Configurações › Sobre o relógio › Informações do software** e toque várias vezes em **Versão do software** até aparecer o aviso do modo desenvolvedor.
-2. Volte às Configurações, abra **Opções do desenvolvedor** (no fim da lista) e ligue **Depuração ADB** e **Depuração sem fio** (pode aparecer como "Depuração por Wi-Fi"). Relógio e celular precisam estar no mesmo Wi-Fi (não use o roteador do próprio celular).
-3. No celular, baixe o `EiClaudeRelogio-vN.apk` mais recente na página **Releases** e instale o app **Wear Installer 2** da Play Store.
-4. No relógio, em **Depuração sem fio › Parear novo dispositivo**, aparecem um código e um IP:porta. No Wear Installer 2, informe o IP do relógio, toque em **Pair new** e digite o código e a porta do pareamento.
-5. Depois conecte com o IP e a porta que aparecem em **Depuração sem fio** (a porta é outra) e instale o APK.
-6. Terminou? Desligue a **Depuração ADB** no relógio para poupar bateria.
+1. Se você instalou a versão antiga do relógio (a que usava a API), desinstale-a antes: no relógio, **Configurações › Aplicativos › Ei Claude › Desinstalar**.
+2. No relógio: **Configurações › Sobre o relógio › Informações do software** e toque várias vezes em **Versão do software** até aparecer o aviso do modo desenvolvedor.
+3. Volte às Configurações, abra **Opções do desenvolvedor** (no fim da lista) e ligue **Depuração ADB** e **Depuração sem fio**. Relógio e celular precisam estar no mesmo Wi-Fi (não use o roteador do próprio celular).
+4. No celular, baixe o `EiClaudeRelogio-vN.apk` mais recente em **Releases** e instale o app **Wear Installer 2** da Play Store.
+5. No relógio, em **Depuração sem fio › Parear novo dispositivo**, aparecem um código e um IP:porta. No Wear Installer 2, informe o IP do relógio, toque em **Pair new** e digite o código e a porta do pareamento.
+6. Depois conecte com o IP e a porta que aparecem em **Depuração sem fio** (a porta é outra) e instale o APK.
+7. Terminou? Desligue a **Depuração ADB** no relógio para poupar bateria.
 
-### 3. Primeira vez
+### 3. Atalho de dois toques
 
-1. Abra o **Ei Claude** no relógio e permita o microfone.
-2. A tela de ajustes mostra um endereço como `http://192.168.0.23:8765/1234`. Abra esse endereço no navegador do celular (mesmo Wi-Fi), cole a chave e toque em **Salvar e testar**. Se preferir, dá para digitar a chave no próprio relógio.
-3. Quando o teste passa, o relógio diz "Oi! Tudo pronto" e começa a ouvir.
-
-Atalho: **Configurações › Recursos avançados › Personalizar botões › Pressionar duas vezes** e escolha o Ei Claude para abrir com dois toques no botão Home.
+No relógio: **Configurações › Recursos avançados › Personalizar botões › Pressionar duas vezes** e escolha o **Ei Claude**. Dois toques no botão Início chamam o Claude no celular.
 
 ### Bom saber
 
-- **Reconhecimento de voz:** o app tenta, nesta ordem, o reconhecedor do sistema, a tela de voz do sistema e, como reserva, o reconhecimento offline (Vosk, o mesmo do app do celular). Os ajustes mostram qual está em uso; dá para forçar o offline.
-- **Voz da resposta:** usa o leitor de texto do relógio. Se não ouvir nada, aumente o volume de **Mídia** do relógio.
-- **Privacidade:** a chave fica só no relógio. A conversa vai para a API da Anthropic e não aparece no histórico do app do Claude. Depois de 15 minutos parado, a próxima fala começa uma conversa nova.
-- **Sem internet em tempo real:** clima, notícias e cotações ficam de fora nesta versão.
+- **Celular bloqueado:** o Ei Claude acende a tela e pede o desbloqueio; o Claude abre logo depois. Para não precisar desbloquear com o celular no bolso, dá para usar o **Extend Unlock** da Samsung (pode aparecer como Smart Lock) com o relógio como dispositivo confiável (**Configurações › Tela de bloqueio e AOD › Extend Unlock › Dispositivos confiáveis**). Isso deixa o celular menos protegido enquanto o relógio estiver conectado: decida se vale a pena.
+- **Mensagens do relógio:** "desatualizado" = falta instalar o Ei Claude v4 no celular; "sem conexão" = o relógio não está ligado ao celular; "Acessibilidade" = ligue a Acessibilidade do Ei Claude no celular para o modo de voz abrir sozinho.
+- **Versão antiga com API:** as versões `relogio-v1` a `relogio-v3` conversavam direto no relógio pela API do Claude (cobrada à parte). Não são mais necessárias.

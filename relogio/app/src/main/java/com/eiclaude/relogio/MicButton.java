@@ -64,17 +64,14 @@ final class MicButton extends View {
 
     private void updateDescription() {
         switch (look) {
-            case LISTENING:
-                setContentDescription("Ouvindo. Toque para parar.");
-                break;
             case THINKING:
-                setContentDescription("Pensando. Toque para cancelar.");
+                setContentDescription("Chamando o Claude no celular.");
                 break;
             case SPEAKING:
-                setContentDescription("Falando. Toque para interromper e falar.");
+                setContentDescription("O Claude está ouvindo no celular. Toque para chamar de novo.");
                 break;
             default:
-                setContentDescription("Toque para falar com o Claude.");
+                setContentDescription("Toque para chamar o Claude no celular.");
         }
     }
 
