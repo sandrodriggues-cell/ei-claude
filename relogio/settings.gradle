@@ -1,0 +1,19 @@
+// Projeto separado do app do celular: o app do relógio (Wear OS) compila sozinho a partir desta pasta.
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'EiClaudeRelogio'
+include ':app'

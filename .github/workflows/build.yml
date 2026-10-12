@@ -3,6 +3,11 @@ name: Compilar APK
 on:
   push:
     branches: [ main ]
+    # Mudanças só no app do relógio não geram uma versão nova do app do celular.
+    paths-ignore:
+      - 'relogio/**'
+      - '.github/workflows/relogio.yml'
+      - 'README.md'
   workflow_dispatch:
 
 permissions:

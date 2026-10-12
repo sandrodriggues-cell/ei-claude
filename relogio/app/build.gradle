@@ -1,0 +1,65 @@
+plugins {
+    id 'com.android.application'
+}
+
+def buildNumber = (System.getenv('BUILD_NUMBER') ?: '1') as Integer
+
+android {
+    namespace 'com.eiclaude.relogio'
+    compileSdk 36
+
+    defaultConfig {
+        // Mesmo id e mesma chave do app do celular: é o que o Wear OS exige para os dois
+        // conversarem no futuro (por exemplo, mandar a chave da API do celular para o relógio).
+        applicationId 'com.eiclaude.app'
+        minSdk 30
+        targetSdk 34
+        versionCode buildNumber
+        versionName "relogio-1.0.${buildNumber}"
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
+        }
+    }
+
+    // Chave fixa (a mesma do app do celular): versões novas instalam por cima da anterior.
+    signingConfigs {
+        fixa {
+            storeFile file('../../app/eiclaude.keystore')
+            storeType 'pkcs12'
+            storePassword 'eiclaude'
+            keyAlias 'eiclaude'
+            keyPassword 'eiclaude'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.fixa
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.fixa
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    // Reconhecimento de voz offline (reserva, se o relógio não tiver um reconhecedor próprio).
+    // Mesmas versões do app do celular, já confirmadas no Maven Central.
+    implementation 'net.java.dev.jna:jna:5.13.0@aar'
+    implementation 'com.alphacephei:vosk-android:0.3.47@aar'
+}
