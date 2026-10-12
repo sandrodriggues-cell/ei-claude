@@ -47,6 +47,7 @@ Na pasta `relogio/` fica um app separado para o relógio: você abre, fala, e o 
 - **Abre já ouvindo.** Quando o Claude termina de responder, o relógio volta a ouvir sozinho.
 - **"Fechar", "encerrar" ou "tchau"** fecham o app. Tocar na tela interrompe a fala ou para de ouvir.
 - O APK é compilado pelo workflow **Compilar APK do relógio** e publicado em **Releases** como `EiClaudeRelogio-vN.apk` (o arquivo do celular continua sendo o `EiClaude-vN.apk`).
+- Use a `relogio-v3` ou mais nova. As `relogio-v1` e `relogio-v2` foram testes com o mesmo id do app do celular: não instale. (A `v3` do celular é igual à `v2`.)
 
 ### 1. Chave da API do Claude
 
