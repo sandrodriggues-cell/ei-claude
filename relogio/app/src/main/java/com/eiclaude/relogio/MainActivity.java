@@ -111,6 +111,12 @@ public class MainActivity extends Activity implements Speaker.Listener {
             releaseEngines(); // os ajustes podem ter mudado (voz offline, por exemplo)
             render();
         }
+        // Primeira vez: pede o microfone logo ao abrir (depois vêm os ajustes e a saudação).
+        if (state == State.IDLE && !hasMic() && !micAsked) {
+            micAsked = true;
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC);
+            return;
+        }
         if (!Prefs.hasKey(this)) {
             if (!setupOpened) {
                 setupOpened = true;
@@ -166,7 +172,8 @@ public class MainActivity extends Activity implements Speaker.Listener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode != REQ_MIC) return;
         releaseEngines();
-        main.postDelayed(this::startListening, 300);
+        // A tela volta (onResume) logo depois do pedido e segue dali: ajustes, saudação ou ouvir.
+        if (state == State.IDLE) autoListen = true;
     }
 
     /** Ajustes por linha de comando (adb): --es chave sk-ant-… [--es modelo …] [--es nome …]. */
