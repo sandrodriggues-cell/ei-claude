@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone próprio do Ei Claude: balão de conversa com ondas de voz, dentro da área segura. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Ondas sonoras dentro da área segura do ícone adaptável -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4.5"
+        android:strokeLineJoin="round"
+        android:pathData="M40,30 H68 A12,12 0 0 1 80,42 V58 A12,12 0 0 1 68,70 H47 L35,79 L38,70 A12,12 0 0 1 28,58 V42 A12,12 0 0 1 40,30 Z" />
     <path
         android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="6"
+        android:strokeWidth="4"
         android:strokeLineCap="round"
-        android:pathData="M36,48 L36,60 M45,41 L45,67 M54,33 L54,75 M63,41 L63,67 M72,48 L72,60" />
+        android:pathData="M42,47 L42,53 M48,43 L48,57 M54,39 L54,61 M60,43 L60,57 M66,47 L66,53" />
 </vector>

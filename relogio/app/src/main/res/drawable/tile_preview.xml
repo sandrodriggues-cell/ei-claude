@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Prévia do bloco na lista "Adicionar blocos". -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp" android:height="192dp"
+    android:viewportWidth="192" android:viewportHeight="192">
+    <path android:fillColor="#FF000000" android:pathData="M96,0 A96,96 0 1 1 95.9,0 Z" />
+    <path android:fillColor="#FFCF6A43" android:pathData="M96,42 A34,34 0 1 1 95.9,42 Z" />
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M80,72 L80,80 M88,66 L88,86 M96,60 L96,92 M104,66 L104,86 M112,72 L112,80" />
+    <path android:fillColor="#FFF5F1EC" android:pathData="M66,126 H126 A6,6 0 0 1 126,138 H66 A6,6 0 0 1 66,126 Z" />
+</vector>
