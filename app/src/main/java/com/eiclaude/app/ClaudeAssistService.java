@@ -270,6 +270,26 @@ public class ClaudeAssistService extends AccessibilityService {
                 : "Voltei para a tela inicial do celular, mas não achei o botão de encerrar do Claude.");
     }
 
+    /** O Claude acabou de ser aberto (depois do desbloqueio, se houve): o prazo começa agora. */
+    static void claudeLaunched() {
+        long now = SystemClock.elapsedRealtime();
+        if (voicePending) sessionStartedAt = now;
+        if (closePending) {
+            sessionStartedAt = now;
+            closeRequestedAt = now;
+        }
+    }
+
+    /** O desbloqueio foi cancelado ou o Claude não abriu. */
+    static void launchCancelled(Context c) {
+        boolean waiting = voicePending || closePending;
+        voicePending = false;
+        closePending = false;
+        if (!waiting) return;
+        setAction("O Claude não abriu (desbloqueio cancelado).");
+        if (fromWatch) WatchBridge.send(c, "erro", "O Claude não abriu: o desbloqueio do celular foi cancelado.");
+    }
+
     // ------------------------------------------------------------------ pedidos do relógio
 
     /** O relógio pediu para encerrar. Thread principal. */
@@ -289,7 +309,16 @@ public class ClaudeAssistService extends AccessibilityService {
         AccessibilityNodeInfo root = activeClaudeRoot();
         if (root != null) {
             closePending = false;
-            closeClaude(collect(root));
+            if (WakeService.otherAppRecording(this)) {
+                closeClaude(collect(root)); // modo de voz ativo: toca em encerrar e sai
+            } else {
+                // Sem modo de voz (ninguém usando o microfone): só sai do Claude, sem tocar em botões.
+                sessionStartedAt = 0;
+                performGlobalAction(GLOBAL_ACTION_HOME);
+                WakeService.requestResumeSoon();
+                setAction("O relógio pediu para encerrar: voltei para a tela inicial.");
+                tellWatch("fechado", "Fechei o Claude.");
+            }
             return;
         }
         // O Claude não está na tela. Se algum app está usando o microfone, provavelmente é o modo de
@@ -345,6 +374,13 @@ public class ClaudeAssistService extends AccessibilityService {
 
     private void onCloseTimeout() {
         if (!closePending) return;
+        long left = CLOSE_REQUEST_MS - (SystemClock.elapsedRealtime() - closeRequestedAt);
+        if (left > 0) {
+            // O prazo recomeçou quando o Claude abriu (depois do desbloqueio): espera o resto.
+            handler.removeCallbacks(closeTimeout);
+            handler.postDelayed(closeTimeout, left + 500);
+            return;
+        }
         closePending = false;
         handler.removeCallbacks(closeTimeout);
         AccessibilityNodeInfo root = activeClaudeRoot();

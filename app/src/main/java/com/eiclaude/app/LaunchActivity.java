@@ -36,11 +36,13 @@ public class LaunchActivity extends Activity {
 
                 @Override
                 public void onDismissCancelled() {
+                    ClaudeAssistService.launchCancelled(LaunchActivity.this);
                     finishQuietly();
                 }
 
                 @Override
                 public void onDismissError() {
+                    ClaudeAssistService.launchCancelled(LaunchActivity.this);
                     finishQuietly();
                 }
             });
@@ -59,8 +61,11 @@ public class LaunchActivity extends Activity {
             launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
             try {
                 startActivity(launch);
+                // O prazo para achar os botões conta a partir daqui (o desbloqueio pode ter demorado).
+                ClaudeAssistService.claudeLaunched();
             } catch (ActivityNotFoundException | SecurityException e) {
                 Toast.makeText(this, "Não consegui abrir o Claude.", Toast.LENGTH_LONG).show();
+                ClaudeAssistService.launchCancelled(this);
             }
         }
         finishQuietly();

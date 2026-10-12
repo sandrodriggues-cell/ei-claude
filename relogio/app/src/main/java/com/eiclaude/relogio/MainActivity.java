@@ -40,6 +40,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
     private static final long FIRST_REPLY_MS = 10000;
     private static final long LATER_REPLY_MS = 35000;
+    private static final long UNLOCK_REPLY_MS = 90000;
 
     private final Handler main = new Handler(Looper.getMainLooper());
 
@@ -240,7 +241,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
                 break;
             case "desbloquear":
                 show(MicButton.Look.THINKING, "Desbloqueie o celular", text);
-                main.postDelayed(noReply, LATER_REPLY_MS);
+                main.postDelayed(noReply, UNLOCK_REPLY_MS); // dá tempo de tirar o celular do bolso
                 break;
             case "voz":
                 Ui.buzz(this, 60);
