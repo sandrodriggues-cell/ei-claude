@@ -9,9 +9,9 @@ android {
     compileSdk 36
 
     defaultConfig {
-        // Mesmo id e mesma chave do app do celular: é o que o Wear OS exige para os dois
-        // conversarem no futuro (por exemplo, mandar a chave da API do celular para o relógio).
-        applicationId 'com.eiclaude.app'
+        // Id diferente do app do celular (com.eiclaude.app): assim, se o APK do relógio for
+        // aberto no celular por engano, ele nunca substitui o Ei Claude do celular.
+        applicationId 'com.eiclaude.relogio'
         minSdk 30
         targetSdk 34
         versionCode buildNumber
