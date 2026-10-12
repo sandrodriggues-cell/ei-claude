@@ -1,0 +1,81 @@
+name: Compilar APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v5
+
+      - name: Instalar o Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Instalar o Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '8.13'
+
+      - name: Baixar o modelo de voz em português (Vosk)
+        run: |
+          curl -fL --retry 3 -o model.zip https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip
+          unzip -q model.zip
+          mkdir -p app/src/main/assets
+          rm -rf app/src/main/assets/model-pt
+          mv vosk-model-small-pt-0.3 app/src/main/assets/model-pt
+          echo "vosk-model-small-pt-0.3" > app/src/main/assets/model-pt/uuid
+          echo "== Arquivos do modelo =="
+          find app/src/main/assets/model-pt -type f | sort
+          WORDS=app/src/main/assets/model-pt/graph/words.txt
+          if [ -f "$WORDS" ]; then
+            echo "== Vocabulário =="
+            for w in ei oi ok hey claude cláudio claudio; do
+              if cut -d' ' -f1 "$WORDS" | grep -qx -- "$w"; then echo "'$w': conhece"; else echo "'$w': NÃO conhece"; fi
+            done
+          else
+            echo "Sem graph/words.txt neste modelo; o app confere o vocabulário no celular."
+          fi
+
+      - name: Compilar
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          set -o pipefail
+          gradle assembleRelease --stacktrace --no-daemon 2>&1 | tee build.log
+
+      - name: Guardar o registro do erro no ramo "logs"
+        if: failure()
+        run: |
+          mkdir -p "$RUNNER_TEMP/logs"
+          if [ -f build.log ]; then cp build.log "$RUNNER_TEMP/logs/build.log"; else echo "A compilação nem começou; veja a aba Actions." > "$RUNNER_TEMP/logs/build.log"; fi
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout --orphan logs-tmp
+          git rm -rf --cached . > /dev/null
+          cp "$RUNNER_TEMP/logs/build.log" build.log
+          git add build.log
+          git commit -m "Registro do build ${{ github.run_number }}"
+          git push -f origin HEAD:logs
+
+      - name: Publicar o APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          APK="EiClaude-v${BUILD_NUMBER}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$APK"
+          ls -l "$APK"
+          gh release create "v${BUILD_NUMBER}" "$APK" \
+            --title "Ei Claude v${BUILD_NUMBER}" \
+            --notes "Toque em ${APK} logo abaixo para baixar e instalar no celular." \
+            --latest

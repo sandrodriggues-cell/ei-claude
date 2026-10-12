@@ -1,0 +1,11 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+# O modelo de voz é baixado durante a compilação no GitHub
+app/src/main/assets/model-pt/
+model.zip
+vosk-model-*/

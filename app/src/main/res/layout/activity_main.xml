@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="32dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ei, Claude"
+            android:textColor="@color/ink"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/Body"
+            android:text="Diga a frase de ativação e o Claude abre na hora. O reconhecimento acontece no próprio celular; nenhum áudio sai do aparelho." />
+
+        <!-- Status e botão principal -->
+        <LinearLayout style="@style/Card">
+
+            <TextView
+                style="@style/CardTitle"
+                android:text="Escuta" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                style="@style/Body"
+                android:text="Desligado"
+                android:textColor="@color/ink"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btnToggle"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/main_button_bg"
+                android:stateListAnimator="@null"
+                android:text="Ligar a escuta"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Permissões -->
+        <LinearLayout style="@style/Card">
+
+            <TextView
+                style="@style/CardTitle"
+                android:text="Preparação (uma vez só)" />
+
+            <TextView
+                style="@style/Body"
+                android:text="Toque em cada item pendente. Quando todos estiverem com ✓, é só ligar a escuta." />
+
+            <Button
+                android:id="@+id/btnMic"
+                style="@style/RowButton"
+                android:text="Microfone" />
+
+            <Button
+                android:id="@+id/btnNotif"
+                style="@style/RowButton"
+                android:text="Notificações" />
+
+            <Button
+                android:id="@+id/btnOverlay"
+                style="@style/RowButton"
+                android:text="Aparecer sobre outros apps" />
+
+            <Button
+                android:id="@+id/btnBattery"
+                style="@style/RowButton"
+                android:text="Bateria sem restrições" />
+
+            <Button
+                android:id="@+id/btnClaude"
+                style="@style/RowButton"
+                android:text="App do Claude" />
+        </LinearLayout>
+
+        <!-- Frase -->
+        <LinearLayout style="@style/Card">
+
+            <TextView
+                style="@style/CardTitle"
+                android:text="Frase de ativação" />
+
+            <TextView
+                style="@style/Body"
+                android:text="Deixe em branco para o modo automático. Para usar mais de uma frase, separe com vírgula." />
+
+            <EditText
+                android:id="@+id/etPhrase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="automático (ei claude)"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/ink"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnSavePhrase"
+                style="@style/RowButton"
+                android:gravity="center"
+                android:text="Salvar frase" />
+
+            <TextView
+                android:id="@+id/tvPhraseInfo"
+                style="@style/Body"
+                android:text="" />
+        </LinearLayout>
+
+        <!-- Sensibilidade -->
+        <LinearLayout style="@style/Card">
+
+            <TextView
+                style="@style/CardTitle"
+                android:text="Sensibilidade" />
+
+            <TextView
+                android:id="@+id/tvSensitivity"
+                style="@style/Body"
+                android:text="" />
+
+            <SeekBar
+                android:id="@+id/sbSensitivity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:max="100" />
+
+            <TextView
+                style="@style/Body"
+                android:text="Se o app não reagir quando você chamar, aumente. Se abrir o Claude sem você chamar, diminua." />
+        </LinearLayout>
+
+        <!-- Modo teste -->
+        <LinearLayout style="@style/Card">
+
+            <Switch
+                android:id="@+id/swTest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Modo teste"
+                android:textColor="@color/ink"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                style="@style/Body"
+                android:text="Com o modo teste ligado, o app escreve aqui tudo o que entende, sem abrir o Claude. Fale a frase algumas vezes e veja como ele escreve. Fora do modo teste, aparece só a frase e a confiança." />
+
+            <TextView
+                android:id="@+id/tvHeard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/row_bg"
+                android:minHeight="56dp"
+                android:padding="12dp"
+                android:text="…"
+                android:textColor="@color/ink"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <!-- Dicas -->
+        <LinearLayout style="@style/Card">
+
+            <TextView
+                style="@style/CardTitle"
+                android:text="Se o app parar sozinho" />
+
+            <TextView
+                style="@style/Body"
+                android:text="Na Samsung: Configurações › Assistência do aparelho › Bateria › Limites de uso em segundo plano › Apps nunca suspensos automáticos › + Ei Claude. Os nomes dos menus podem variar conforme o modelo e a versão do Android.\n\nDepois de reiniciar o celular ou atualizar o app, toque no aviso do Ei Claude para religar a escuta." />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
