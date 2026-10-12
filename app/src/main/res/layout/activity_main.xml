@@ -90,6 +90,75 @@
                 android:text="App do Claude" />
         </LinearLayout>
 
+        <!-- Modo de voz automático e comando "fechar" -->
+        <LinearLayout style="@style/Card">
+
+            <TextView
+                style="@style/CardTitle"
+                android:text="Modo de voz e comando “fechar”" />
+
+            <TextView
+                style="@style/Body"
+                android:text="Para entrar no modo de voz sozinho e entender o seu “fechar”, o Ei Claude usa a permissão de Acessibilidade. Ela só age dentro do app do Claude." />
+
+            <Button
+                android:id="@+id/btnA11y"
+                style="@style/RowButton"
+                android:text="Acessibilidade" />
+
+            <Button
+                android:id="@+id/btnRestricted"
+                style="@style/RowButton"
+                android:text="Apareceu “configuração restrita”?" />
+
+            <Switch
+                android:id="@+id/swAutoVoice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:minHeight="44dp"
+                android:text="Entrar no modo de voz sozinho"
+                android:textColor="@color/ink"
+                android:textSize="15sp" />
+
+            <Switch
+                android:id="@+id/swCloseVoice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:minHeight="44dp"
+                android:text="Fechar o Claude quando eu disser:"
+                android:textColor="@color/ink"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/etClose"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="fechar, pode fechar"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/ink"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnSaveClose"
+                style="@style/RowButton"
+                android:gravity="center"
+                android:text="Salvar frases de fechar" />
+
+            <Button
+                android:id="@+id/btnDiag"
+                style="@style/RowButton"
+                android:text="Ajustar botões do Claude" />
+
+            <TextView
+                android:id="@+id/tvAssist"
+                style="@style/Body"
+                android:text="" />
+        </LinearLayout>
+
         <!-- Frase -->
         <LinearLayout style="@style/Card">
 

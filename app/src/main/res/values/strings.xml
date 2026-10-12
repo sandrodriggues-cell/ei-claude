@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ei Claude</string>
+    <string name="a11y_label">Ei Claude</string>
+    <string name="a11y_description">Depois do “Ei, Claude”, toca no botão do modo de voz do Claude. Quando você diz “fechar”, encerra a conversa por voz e volta para a tela inicial. Só age dentro do app do Claude, e nada sai do celular.</string>
 </resources>

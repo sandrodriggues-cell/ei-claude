@@ -71,9 +71,12 @@ public class WakeService extends Service {
         void onHeard(String text);
 
         void onPhraseInfo(String info);
+
+        void onAssist(String text);
     }
 
     static volatile UiListener uiListener;
+    static volatile WakeService current;
     static volatile boolean running;
     static volatile boolean testMode;
     static volatile String lastStatus = "Desligado";
@@ -102,6 +105,7 @@ public class WakeService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        current = this;
         createChannels(this);
         try {
             LibVosk.setLogLevel(LogLevel.WARNINGS);
@@ -146,7 +150,22 @@ public class WakeService extends Service {
     @Override
     public void onDestroy() {
         shutdownAll();
+        if (current == this) current = null;
         super.onDestroy();
+    }
+
+    /** O Claude foi fechado pelo comando de voz: tenta voltar a escutar logo. */
+    static void requestResumeSoon() {
+        WakeService s = current;
+        if (s == null) return;
+        s.handler.removeCallbacks(s.resumeCheck);
+        s.handler.postDelayed(s.resumeCheck, 1500);
+    }
+
+    /** Repassa à tela do app o que o serviço de acessibilidade fez. */
+    static void notifyAssist(String text) {
+        UiListener l = uiListener;
+        if (l != null) l.onAssist(text);
     }
 
     // ---------------------------------------------------------------- primeiro plano
@@ -419,17 +438,30 @@ public class WakeService extends Service {
         stopCapture(); // libera o microfone para o Claude
         pausedForClaude = true;
         vibrate();
+        ClaudeAssistService.beginSession(this);
 
+        Intent i = new Intent(this, LaunchActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        boolean launched = false;
         if (Settings.canDrawOverlays(this)) {
-            Intent i = new Intent(this, LaunchActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
             try {
                 startActivity(i);
-                setStatus("Abrindo o Claude… A escuta volta quando o microfone ficar livre.");
-            } catch (Throwable t) {
-                showOpenClaudeNotification();
-                setStatus("Não consegui abrir o Claude sozinho. Toque no aviso.");
+                launched = true;
+            } catch (Throwable ignored) {
+                // tenta pelo serviço de acessibilidade abaixo
             }
+        }
+        ClaudeAssistService assist = ClaudeAssistService.instance;
+        if (!launched && assist != null) {
+            try {
+                assist.startActivity(i);
+                launched = true;
+            } catch (Throwable ignored) {
+                // cai no aviso abaixo
+            }
+        }
+        if (launched) {
+            setStatus("Abrindo o Claude… A escuta volta quando o microfone ficar livre.");
         } else {
             showOpenClaudeNotification();
             setStatus("Falta liberar \"Aparecer sobre outros apps\". Toque no aviso para abrir o Claude.");

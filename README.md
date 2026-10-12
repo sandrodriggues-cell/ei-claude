@@ -22,6 +22,19 @@ Versões novas instalam por cima da anterior (a chave de assinatura é fixa).
 - **Modo teste:** mostra o que o reconhecedor entende, para ajustar a frase.
 - **Sensibilidade:** define a confiança mínima para disparar.
 
+## Modo de voz automático e comando "fechar" (versão 2)
+
+Com a permissão de Acessibilidade ligada (Configurações › Acessibilidade › Apps instalados › Ei Claude), o app:
+
+- toca sozinho no botão do modo de voz depois do "Ei, Claude";
+- ao ver a sua fala "fechar" na tela do Claude (frases configuráveis), toca em encerrar e volta para a tela inicial.
+
+O serviço só observa o app do Claude (`com.anthropic.claude`). Se ele não achar os botões, use **Ajustar botões do Claude** para escolher na lista o botão certo, ou copie a lista e mande para o Claude.
+
+No Android 13 ou mais novo, por o app não ter vindo de uma loja, pode ser preciso liberar antes: Configurações › Apps › Ei Claude › ⋮ › Permitir configurações restritas.
+
+O Google Play Protect pode bloquear a instalação de apps baixados pelo navegador que usam Acessibilidade. Nesse caso, a versão anterior continua instalada e funcionando.
+
 ## Limitações
 
 - Depois de reiniciar o celular ou atualizar o app, o Android não deixa o microfone ligar sozinho em segundo plano: toque no aviso do Ei Claude para religar.

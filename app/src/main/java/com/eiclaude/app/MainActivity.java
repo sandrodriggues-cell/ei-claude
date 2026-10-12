@@ -2,7 +2,10 @@ package com.eiclaude.app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -10,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -42,6 +46,12 @@ public class MainActivity extends Activity implements WakeService.UiListener {
     private EditText etPhrase;
     private SeekBar sbSensitivity;
     private Switch swTest;
+    private Button btnA11y;
+    private Button btnRestricted;
+    private Switch swAutoVoice;
+    private Switch swCloseVoice;
+    private EditText etClose;
+    private TextView tvAssist;
 
     private boolean startAfterMicGrant;
     private boolean autoStartPending;
@@ -102,6 +112,39 @@ public class MainActivity extends Activity implements WakeService.UiListener {
         });
 
         swTest.setOnCheckedChangeListener((button, checked) -> onTestModeChanged(checked));
+
+        // Modo de voz automático e "fechar"
+        btnA11y = findViewById(R.id.btnA11y);
+        btnRestricted = findViewById(R.id.btnRestricted);
+        swAutoVoice = findViewById(R.id.swAutoVoice);
+        swCloseVoice = findViewById(R.id.swCloseVoice);
+        etClose = findViewById(R.id.etClose);
+        tvAssist = findViewById(R.id.tvAssist);
+        Button btnSaveClose = findViewById(R.id.btnSaveClose);
+        Button btnDiag = findViewById(R.id.btnDiag);
+
+        swAutoVoice.setChecked(Prefs.isAutoVoice(this));
+        swCloseVoice.setChecked(Prefs.isCloseByVoice(this));
+        etClose.setText(Prefs.getClosePhrases(this));
+        swAutoVoice.setOnCheckedChangeListener((button, checked) -> {
+            Prefs.setAutoVoice(this, checked);
+            refreshAssistInfo();
+        });
+        swCloseVoice.setOnCheckedChangeListener((button, checked) -> {
+            Prefs.setCloseByVoice(this, checked);
+            refreshAssistInfo();
+        });
+        btnA11y.setOnClickListener(v -> openAccessibilitySettings());
+        btnRestricted.setOnClickListener(v -> openRestrictedSettingsHelp());
+        btnSaveClose.setOnClickListener(v -> saveClosePhrases());
+        btnDiag.setOnClickListener(v -> showClaudeButtons());
+        etClose.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                saveClosePhrases();
+                return true;
+            }
+            return false;
+        });
 
         autoStartPending = ACTION_AUTO_START.equals(getIntent().getAction());
     }
@@ -192,6 +235,11 @@ public class MainActivity extends Activity implements WakeService.UiListener {
         setRow(btnBattery, isIgnoringBattery(), "Bateria sem restrições", "Tirar da otimização de bateria");
         setRow(btnClaude, isClaudeInstalled(), "App do Claude instalado", "Instalar o app do Claude");
         btnToggle.setText(WakeService.running ? "Desligar a escuta" : "Ligar a escuta");
+
+        boolean a11y = isAccessibilityOn();
+        setRow(btnA11y, a11y, "Acessibilidade ligada", "Ligar a Acessibilidade do Ei Claude");
+        btnRestricted.setVisibility(!a11y && Build.VERSION.SDK_INT >= 33 ? View.VISIBLE : View.GONE);
+        refreshAssistInfo();
     }
 
     private void setRow(Button b, boolean ok, String okText, String todoText) {
@@ -341,7 +389,119 @@ public class MainActivity extends Activity implements WakeService.UiListener {
         reloadIfRunning();
     }
 
+    // ------------------------------------------------------------------ modo de voz e "fechar"
+
+    private boolean isAccessibilityOn() {
+        if (ClaudeAssistService.isConnected()) return true;
+        String enabled = Settings.Secure.getString(getContentResolver(),
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        return enabled != null && enabled.contains(getPackageName() + "/");
+    }
+
+    private void openAccessibilitySettings() {
+        if (isAccessibilityOn()) {
+            Toast.makeText(this, "A Acessibilidade já está ligada.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(this, "Toque em Apps instalados › Ei Claude e ative.", Toast.LENGTH_LONG).show();
+        if (!tryStart(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))) openAppSettings();
+    }
+
+    private void openRestrictedSettingsHelp() {
+        new AlertDialog.Builder(this)
+                .setTitle("Configuração restrita")
+                .setMessage("Como o Ei Claude não veio da Play Store, o Android pede uma liberação antes da "
+                        + "Acessibilidade.\n\nNa tela que vai abrir, toque nos três pontinhos (⋮) no canto "
+                        + "de cima e em \"Permitir configurações restritas\". Depois volte e ligue a Acessibilidade.")
+                .setPositiveButton("Abrir", (dialog, which) -> openAppSettings())
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void saveClosePhrases() {
+        List<String> variants = Phrase.variants(etClose.getText().toString());
+        String value = variants.isEmpty() ? Prefs.DEFAULT_CLOSE_PHRASES : String.join(", ", variants);
+        Prefs.setClosePhrases(this, value);
+        etClose.setText(value);
+        etClose.setSelection(value.length());
+        InputMethodManager imm = getSystemService(InputMethodManager.class);
+        if (imm != null) imm.hideSoftInputFromWindow(etClose.getWindowToken(), 0);
+        etClose.clearFocus();
+        Toast.makeText(this, "Frases de fechar salvas.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showClaudeButtons() {
+        if (!isAccessibilityOn()) {
+            Toast.makeText(this, "Ligue a Acessibilidade do Ei Claude primeiro.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        List<String> labels = ClaudeAssistService.lastLabels;
+        if (labels == null || labels.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Ajustar botões do Claude")
+                    .setMessage("Abra o Claude na tela da conversa (ou no modo de voz), espere alguns segundos "
+                            + "e volte aqui. O Ei Claude vai listar os botões que encontrar.")
+                    .setPositiveButton("Abrir o Claude", (dialog, which) -> openClaudeOrStore())
+                    .setNegativeButton("Fechar", null)
+                    .show();
+            return;
+        }
+        final String[] items = labels.toArray(new String[0]);
+        new AlertDialog.Builder(this)
+                .setTitle("Botões na última tela do Claude")
+                .setItems(items, (dialog, which) -> chooseButtonRole(items[which]))
+                .setPositiveButton("Copiar lista", (dialog, which) -> copyButtons(labels))
+                .setNeutralButton("Voltar ao automático", (dialog, which) -> {
+                    Prefs.setVoiceButton(this, "");
+                    Prefs.setStopButton(this, "");
+                    refreshAssistInfo();
+                    Toast.makeText(this, "O app volta a descobrir os botões sozinho.", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Fechar", null)
+                .show();
+    }
+
+    private void chooseButtonRole(String label) {
+        String[] roles = {"É o botão que liga o modo de voz", "É o botão que encerra o modo de voz"};
+        new AlertDialog.Builder(this)
+                .setTitle("\"" + label + "\"")
+                .setItems(roles, (dialog, which) -> {
+                    if (which == 0) {
+                        Prefs.setVoiceButton(this, label);
+                    } else {
+                        Prefs.setStopButton(this, label);
+                    }
+                    refreshAssistInfo();
+                    Toast.makeText(this, "Guardado.", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void copyButtons(List<String> labels) {
+        ClipboardManager cm = getSystemService(ClipboardManager.class);
+        if (cm == null) return;
+        cm.setPrimaryClip(ClipData.newPlainText("Botões do Claude", String.join("\n", labels)));
+        Toast.makeText(this, "Lista copiada. É só colar na conversa com o Claude.", Toast.LENGTH_LONG).show();
+    }
+
+    private void refreshAssistInfo() {
+        String voice = Prefs.getVoiceButton(this);
+        String stop = Prefs.getStopButton(this);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Botão do modo de voz: ").append(voice.isEmpty() ? "descobrir sozinho" : "\"" + voice + "\"");
+        sb.append("\nBotão de encerrar: ").append(stop.isEmpty() ? "descobrir sozinho" : "\"" + stop + "\"");
+        String last = ClaudeAssistService.lastAction;
+        if (last != null && !last.isEmpty()) sb.append("\nÚltima ação: ").append(last);
+        tvAssist.setText(sb.toString());
+    }
+
     // ------------------------------------------------------------------ avisos do serviço
+
+    @Override
+    public void onAssist(String text) {
+        refreshAssistInfo();
+    }
 
     @Override
     public void onStatus(String status) {

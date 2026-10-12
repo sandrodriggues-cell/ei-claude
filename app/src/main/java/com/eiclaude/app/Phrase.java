@@ -1,5 +1,6 @@
 package com.eiclaude.app;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +46,14 @@ final class Phrase {
     static String[] words(String phrase) {
         String p = phrase == null ? "" : phrase.trim();
         return p.isEmpty() ? new String[0] : p.split(" ");
+    }
+
+    /** Forma para comparar rótulos e falas: sem acentos, minúsculas, sem pontuação. */
+    static String fold(String s) {
+        if (s == null) return "";
+        String t = Normalizer.normalize(s, Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
+        t = t.toLowerCase(Locale.ROOT).replaceAll("[^\\p{L}\\p{Nd} ]", " ");
+        return t.trim().replaceAll("\\s+", " ");
     }
 
     /** Texto do reconhecedor sem os marcadores [unk]. */

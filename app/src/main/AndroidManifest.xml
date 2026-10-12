@@ -47,6 +47,20 @@
             android:exported="false"
             android:foregroundServiceType="microphone" />
 
+        <!-- Só observa o app do Claude: liga o modo de voz e entende o "fechar". -->
+        <service
+            android:name=".ClaudeAssistService"
+            android:exported="true"
+            android:label="@string/a11y_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_config" />
+        </service>
+
         <receiver
             android:name=".BootReceiver"
             android:exported="true">
