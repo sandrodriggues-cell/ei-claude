@@ -35,6 +35,8 @@ public class MainActivity extends Activity implements Speaker.Listener {
 
     private static final int REQ_PERMS = 7101;
     private static final long NAP_AFTER_MS = 45000;
+    private static final long STATS_EVERY_MS = 30000;
+    private static final long MOOD_HOLD_MS = 10L * 60 * 1000;
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService network = Executors.newSingleThreadExecutor();
@@ -43,6 +45,8 @@ public class MainActivity extends Activity implements Speaker.Listener {
     private ScrollView scroll;
     private TextView status;
     private DogView dog;
+    private StatsView stats;
+    private TextView treatChip;
     private TextView heardText;
     private TextView replyText;
 
@@ -55,6 +59,8 @@ public class MainActivity extends Activity implements Speaker.Listener {
     private boolean askedPerms;
     private boolean autoListen = true;
     private boolean endAfterSpeak;
+    private boolean listenAfter = true;
+    private long moodSetAt;
     private int requestGen;
     private int speakGen;
     private String pendingSay;
@@ -64,6 +70,14 @@ public class MainActivity extends Activity implements Speaker.Listener {
         if (state == State.IDLE && dog != null) {
             dog.setMode(DogView.Mode.SLEEPING);
             status.setText("Zzz… toque para acordar o Snoop");
+        }
+    };
+
+    private final Runnable statsTick = new Runnable() {
+        @Override
+        public void run() {
+            refreshStats();
+            main.postDelayed(this, STATS_EVERY_MS);
         }
     };
 
@@ -109,6 +123,8 @@ public class MainActivity extends Activity implements Speaker.Listener {
         resumed = true;
         Prefs.putLong(this, "aberto_em", System.currentTimeMillis());
         scroll.requestFocus();
+        main.removeCallbacks(statsTick);
+        main.post(statsTick);
         String[] missing = missingPermissions();
         if (!askedPerms && missing.length > 0) {
             askedPerms = true;
@@ -123,23 +139,23 @@ public class MainActivity extends Activity implements Speaker.Listener {
         if (pendingSay != null) {
             String s = pendingSay;
             pendingSay = null;
-            dog.setMood(DogView.Mood.of(pendingMood));
             heardText.setText("");
             replyText.setTextColor(Ui.INK);
             replyText.setText(s);
             autoListen = false;
-            speak(s);
+            setMood(DogView.Mood.of(pendingMood));
+            speak(s, true);
             return;
         }
         if (Prefs.consumeGreeting(this)) {
             String hi = "Oba! Agora eu consigo te ouvir, " + Prefs.name(this) + ". Au au! Fala comigo!";
             Brain.add(this, "model", hi);
-            dog.setMood(DogView.Mood.ANIMADO);
+            setMood(DogView.Mood.ANIMADO);
             heardText.setText("");
             replyText.setTextColor(Ui.INK);
             replyText.setText(hi);
             autoListen = false;
-            speak(hi);
+            speak(hi, true);
             return;
         }
         if (autoListen) {
@@ -156,6 +172,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
         resumed = false;
         autoListen = false;
         main.removeCallbacks(nap);
+        main.removeCallbacks(statsTick);
         if (state == State.LISTENING) {
             recorder.cancel();
             setState(State.IDLE);
@@ -236,10 +253,22 @@ public class MainActivity extends Activity implements Speaker.Listener {
         dog = new DogView(this);
         dog.setClickable(true);
         dog.setOnClickListener(v -> onTap());
+        dog.setPetListener(this::onPet);
         int size = Math.round(w * 0.70f);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
         lp.gravity = Gravity.CENTER_HORIZONTAL;
         column.addView(dog, lp);
+
+        stats = new StatsView(this);
+        stats.setOnClickListener(v -> showStatsHelp());
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(size, LinearLayout.LayoutParams.WRAP_CONTENT);
+        slp.gravity = Gravity.CENTER_HORIZONTAL;
+        slp.topMargin = Ui.dp(this, 2);
+        column.addView(stats, slp);
+
+        treatChip = Ui.chip(this, "", v -> feed());
+        treatChip.setVisibility(android.view.View.GONE);
+        column.addView(treatChip);
 
         heardText = Ui.text(this, 12, Ui.SOFT, false);
         heardText.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC));
@@ -284,9 +313,63 @@ public class MainActivity extends Activity implements Speaker.Listener {
             default:
                 dog.setMode(DogView.Mode.IDLE);
                 status.setText(Prefs.hasKey(this) ? "Toque no Snoop para conversar" : "Falta a chave do Gemini");
+                long now = System.currentTimeMillis();
+                if (now - moodSetAt > MOOD_HOLD_MS) {
+                    DogView.Mood hint = Pet.moodHint(this, now);
+                    dog.setMood(hint != null ? hint : DogView.Mood.FELIZ);
+                }
                 main.postDelayed(nap, NAP_AFTER_MS);
         }
         root.setKeepScreenOn(state != State.IDLE);
+    }
+
+    private void setMood(DogView.Mood m) {
+        dog.setMood(m);
+        moodSetAt = System.currentTimeMillis();
+    }
+
+    private void refreshStats() {
+        long now = System.currentTimeMillis();
+        stats.setValues(Pet.belly(this, now), Pet.walk(this, now), Pet.joy(this, now));
+        int treats = Pet.treatsAvailable(this, now);
+        treatChip.setText(treats == 1 ? "Dar petisco" : "Dar petisco (" + treats + ")");
+        treatChip.setVisibility(treats > 0 ? android.view.View.VISIBLE : android.view.View.GONE);
+    }
+
+    /** Carinho: deslizou o dedo na cabeça dele. */
+    private void onPet() {
+        Pet.addJoy(this, 2);
+        refreshStats();
+        if (state == State.IDLE) {
+            setMood(DogView.Mood.FELIZ);
+            render(); // acorda do cochilo
+        }
+    }
+
+    private void feed() {
+        if (!Pet.feed(this)) {
+            refreshStats();
+            return;
+        }
+        dog.giveTreat();
+        Ui.buzz(this, 40);
+        refreshStats();
+        setMood(DogView.Mood.ANIMADO);
+        String thanks = Phrases.treatThanks(this);
+        heardText.setText("");
+        replyText.setTextColor(Ui.INK);
+        replyText.setText(thanks);
+        if (state == State.IDLE && resumed) speak(thanks, false);
+    }
+
+    private void showStatsHelp() {
+        long now = System.currentTimeMillis();
+        long next = Pet.stepsToNextTreat(this, now);
+        heardText.setText("");
+        replyText.setTextColor(Ui.SOFT);
+        replyText.setText("Barriga enche com petiscos: você ganha um a cada " + Pet.STEPS_PER_TREAT
+                + " passos no dia" + (next > 0 ? " (faltam " + next + ")" : "") + ". Passeio são os passos das "
+                + "últimas 3 horas. Alegria sobe com conversa, carinho (deslize o dedo na cabeça dele) e truques.");
     }
 
     private void showIntro() {
@@ -368,7 +451,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
                 if (state != State.LISTENING) return;
                 if (!heard) {
                     setState(State.IDLE);
-                    dog.setMood(DogView.Mood.CURIOSO);
+                    setMood(DogView.Mood.CURIOSO);
                     status.setText("Não ouvi nada · toque no Snoop para falar");
                     return;
                 }
@@ -435,20 +518,34 @@ public class MainActivity extends Activity implements Speaker.Listener {
         if (gen != requestGen || isDestroyed()) return;
         if (!usedModel.equals(Prefs.model(this))) Prefs.setModel(this, usedModel);
         Prefs.countRequest(this, r.tokensIn, r.tokensOut);
+        String say = r.say;
+        if (!r.reminderWhen.isEmpty() && !r.reminderText.isEmpty()) {
+            Reminders.Item it = Reminders.add(this, Reminders.parseWhen(r.reminderWhen), r.reminderText, r.reminderDaily);
+            if (it == null) say += " Hmm, não consegui marcar esse lembrete. Fala o dia e o horário de novo?";
+        }
+        if (!r.cancelReminder.isEmpty() && Reminders.cancelMatching(this, r.cancelReminder) == 0) {
+            say += " Não achei esse lembrete na minha lista.";
+        }
         Brain.add(this, "user", r.heard.isEmpty() ? "(mensagem de voz que o Snoop não entendeu)" : r.heard);
-        Brain.add(this, "model", r.say);
+        Brain.add(this, "model", say);
         if (!r.remember.isEmpty()) Brain.addNote(this, r.remember);
+        Pet.addJoy(this, 6);
 
         heardText.setText(r.heard.isEmpty() ? "" : "Você: " + r.heard);
         replyText.setTextColor(Ui.INK);
-        replyText.setText(r.say);
-        dog.setMood(DogView.Mood.of(r.mood));
+        replyText.setText(say);
+        setMood(DogView.Mood.of(r.mood));
+        if (!r.trick.isEmpty() && dog.playTrick(r.trick)) {
+            Pet.addJoy(this, 3);
+            if ("latir".equals(Text.fold(r.trick))) Ui.buzz(this, 80);
+        }
+        refreshStats();
         endAfterSpeak = r.end || Text.isClose(r.heard);
         if (!resumed) {
             setState(State.IDLE);
             return;
         }
-        speak(r.say);
+        speak(say, true);
     }
 
     private void onFail(int gen, Gemini.ApiException e) {
@@ -477,13 +574,14 @@ public class MainActivity extends Activity implements Speaker.Listener {
             default:
                 msg = "Deu um probleminha: " + e.getMessage();
         }
-        dog.setMood(mood);
+        setMood(mood);
         showProblem(msg);
     }
 
     // ------------------------------------------------------------------ falar
 
-    private void speak(String text) {
+    private void speak(String text, boolean thenListen) {
+        listenAfter = thenListen;
         setState(State.SPEAKING);
         scrollToReply();
         final String spoken = Text.forSpeech(text);
@@ -537,7 +635,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
             return;
         }
         setState(State.IDLE);
-        if (Prefs.keepListening(this) && resumed) main.postDelayed(this::startListening, 300);
+        if (listenAfter && Prefs.keepListening(this) && resumed) main.postDelayed(this::startListening, 300);
     }
 
     private void closeApp() {

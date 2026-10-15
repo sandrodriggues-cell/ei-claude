@@ -259,6 +259,17 @@ final class SetupServer {
             Prefs.setQuiet(context, 0, 0);
         }
         Prefs.setMissYou(context, form.containsKey("saudade"));
+        int work = 6;
+        int off = 2;
+        try {
+            work = Integer.parseInt(trim(form.get("escala_trabalho")));
+            off = Integer.parseInt(trim(form.get("escala_folga")));
+        } catch (NumberFormatException ignored) {
+            // mantém o padrão
+        }
+        Shift.configure(context, work, off, trim(form.get("escala_ref")),
+                minutes(form.get("turno_ini")), minutes(form.get("turno_fim")));
+        Shift.setEnabled(context, form.containsKey("escala_liga") && Shift.reference(context) != null);
         Pulse.schedule(context);
 
         if (!Prefs.hasKey(context)) {
@@ -367,6 +378,23 @@ final class SetupServer {
                 .append(Prefs.hhmm(quietOn ? qe : 14 * 60)).append("\"></div>");
         b.append("<p class=\"hint\">O modo Não perturbe e o modo dormir do relógio também calam os avisos.</p></div>");
 
+        boolean shiftOn = Shift.enabled(context);
+        java.time.LocalDate ref = Shift.reference(context);
+        b.append("<div class=\"card\"><label class=\"inline\"><input type=\"checkbox\" name=\"escala_liga\"")
+                .append(shiftOn ? " checked" : "").append("> Escala de trabalho (turno e folgas)</label>");
+        b.append("<div class=\"row\"><input type=\"number\" min=\"1\" max=\"30\" name=\"escala_trabalho\" value=\"")
+                .append(Shift.workDays(context)).append("\"><span>dias de trabalho,</span><input type=\"number\" min=\"1\" ")
+                .append("max=\"30\" name=\"escala_folga\" value=\"").append(Shift.offDays(context))
+                .append("\"><span>de folga</span></div>");
+        b.append("<label class=\"sub2\" for=\"escala_ref\">Primeiro dia de uma folga (qualquer uma, passada ou futura)</label>");
+        b.append("<input type=\"date\" id=\"escala_ref\" name=\"escala_ref\" value=\"")
+                .append(ref == null ? "" : ref.toString()).append("\">");
+        b.append("<label class=\"sub2\">Turno</label><div class=\"row\"><input type=\"time\" name=\"turno_ini\" value=\"")
+                .append(Prefs.hhmm(Shift.start(context))).append("\"><span>às</span><input type=\"time\" name=\"turno_fim\" value=\"")
+                .append(Prefs.hhmm(Shift.end(context))).append("\"></div>");
+        b.append("<p class=\"hint\">O Snoop deseja bom turno meia hora antes, avisa quando o turno acaba e sabe ")
+                .append("quando é folga. Turno da noite: o dia de trabalho é o dia em que o turno começa.</p></div>");
+
         b.append("<div class=\"card\"><label class=\"inline\"><input type=\"checkbox\" name=\"saudade\"")
                 .append(Prefs.missYou(context) ? " checked" : "")
                 .append("> Avisar quando ficar 2 dias sem conversar (saudade)</label></div>");
@@ -397,10 +425,11 @@ final class SetupServer {
                 + "label,.label{display:block;font-weight:600;margin-bottom:8px}"
                 + "label.inline{display:flex;gap:8px;align-items:center;margin:0 0 8px}"
                 + "label.sub2{margin-top:12px}"
-                + "input[type=text],input[type=password],input[type=time],select{width:100%;padding:12px;"
+                + "input[type=text],input[type=password],input[type=time],input[type=date],input[type=number],select{width:100%;padding:12px;"
                 + "border:1px solid var(--line);border-radius:10px;font:15px system-ui,Roboto,sans-serif;background:#fff;color:var(--ink)}"
                 + "input[type=password],#chave{font-family:ui-monospace,Menlo,monospace}"
-                + ".row{display:flex;gap:10px;align-items:center}.row span{color:var(--muted)}"
+                + ".row{display:flex;gap:10px;align-items:center}.row span{color:var(--muted);white-space:nowrap}"
+                + ".row input{flex:1;min-width:0}"
                 + ".opt{display:flex;gap:10px;align-items:flex-start;font-weight:400;padding:8px 0;margin:0}"
                 + ".opt input{margin-top:4px}.hint{color:var(--muted);font-size:14px;margin:8px 0 0;font-weight:400}"
                 + "button{width:100%;margin-top:18px;padding:15px;border:0;border-radius:12px;"

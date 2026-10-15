@@ -9,7 +9,9 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.os.SystemClock;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import java.util.Random;
 
@@ -18,6 +20,11 @@ import java.util.Random;
  * mexem, boca que acompanha a fala e expressões para cada humor.
  */
 public final class DogView extends View {
+
+    /** Você fez carinho (deslizou o dedo na cabeça dele). */
+    interface PetListener {
+        void onPet();
+    }
 
     enum Mode { IDLE, LISTENING, THINKING, SPEAKING, SLEEPING }
 
@@ -59,6 +66,12 @@ public final class DogView extends View {
     private static final int TAG_EDGE = 0xFFC99A2E;
     private static final int BLUSH = 0x73F49A8C;
     private static final int RING = 0xFF5EC8D8;
+    private static final int HEART = 0xFFFF6B8B;
+    private static final int BONE = 0xFFF5EBDD;
+    private static final int BONE_EDGE = 0xFFC9B79F;
+
+    /** Truques que ele sabe fazer (o Gemini escolhe pelo nome). */
+    static final String[] TRICKS = {"sentar", "pata", "rolar", "latir", "pular", "abanar"};
 
     // Mesmos traços da prévia e dos ícones (coordenadas com a cabeça no centro).
     private static final Path HEAD = SvgPath.parse("M 0 -50 C 27 -50 51 -40 54 -12 C 57 12 48 34 27 42 "
@@ -75,6 +88,8 @@ public final class DogView extends View {
     private static final Path NOSE = SvgPath.parse("M -9 7 C -9 1 9 1 9 7 C 9 12 3 15 0 15 C -3 15 -9 12 -9 7 Z");
     private static final Path SMILE = SvgPath.parse("M -12 23 Q -6 28 0 21 Q 6 28 12 23");
     private static final Path FROWN = SvgPath.parse("M -10 28 Q 0 21 10 28");
+    private static final Path HEART_P = SvgPath.parse("M 0 4 C -7 -1 -5 -8 0 -4 C 5 -8 7 -1 0 4 Z");
+    private static final Path PAW = SvgPath.parse("M -9 0 L 9 0 L 9 44 L -9 44 Z");
 
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint headPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -107,6 +122,22 @@ public final class DogView extends View {
     private long pokeAt = -10000;
     private boolean visible;
 
+    private PetListener petListener;
+    private String trick;
+    private long trickAt;
+    private long trickDur;
+    private long petUntil;
+    private long lastPetAt;
+    private long chewAt = -10000;
+    private final long[] heartAt = new long[10];
+    private final float[] heartX = new float[10];
+    private int heartNext;
+    private float downX;
+    private float downY;
+    private float travel;
+    private boolean petting;
+    private final float slop;
+
     public DogView(Context c) {
         super(c);
         headPaint.setStyle(Paint.Style.FILL);
@@ -122,7 +153,115 @@ public final class DogView extends View {
         zText.setColor(0xFFF5F1EC);
         zText.setTypeface(Typeface.DEFAULT_BOLD);
         zText.setTextAlign(Paint.Align.CENTER);
-        setContentDescription("Snoop, seu cachorro virtual. Toque para conversar.");
+        setContentDescription("Snoop, seu cachorro virtual. Toque para conversar, deslize o dedo para fazer carinho.");
+        slop = ViewConfiguration.get(c).getScaledTouchSlop();
+        for (int i = 0; i < heartAt.length; i++) heartAt[i] = -10000;
+    }
+
+    void setPetListener(PetListener l) {
+        petListener = l;
+    }
+
+    /** Faz um truque pelo nome (sentar, pata, rolar, latir, pular, abanar). */
+    boolean playTrick(String name) {
+        String n = Text.fold(name);
+        long dur;
+        switch (n) {
+            case "sentar":
+                dur = 1600;
+                break;
+            case "pata":
+                dur = 1900;
+                break;
+            case "rolar":
+                dur = 1100;
+                break;
+            case "latir":
+                dur = 1000;
+                break;
+            case "pular":
+                dur = 1200;
+                break;
+            case "abanar":
+                dur = 1600;
+                break;
+            default:
+                return false;
+        }
+        trick = n;
+        trickAt = SystemClock.uptimeMillis();
+        trickDur = dur;
+        if (n.equals("abanar")) burstHearts(3);
+        invalidate();
+        return true;
+    }
+
+    /** Ganhou um petisco: aparece o ossinho e ele mastiga, todo feliz. */
+    void giveTreat() {
+        chewAt = SystemClock.uptimeMillis();
+        burstHearts(3);
+        invalidate();
+    }
+
+    private void burstHearts(int n) {
+        long now = SystemClock.uptimeMillis();
+        for (int i = 0; i < n; i++) {
+            int k = heartNext++ % heartAt.length;
+            heartAt[k] = now + i * 180L;
+            heartX[k] = -30 + random.nextFloat() * 60;
+        }
+    }
+
+    private boolean happyNow(long now) {
+        return now < petUntil || now - chewAt < 1700
+                || ("abanar".equals(trick) || "pata".equals(trick) || "sentar".equals(trick));
+    }
+
+    // ------------------------------------------------------------------ toque: clique ou carinho
+
+    @Override
+    public boolean onTouchEvent(MotionEvent e) {
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                downX = e.getX();
+                downY = e.getY();
+                travel = 0;
+                petting = false;
+                if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(true);
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                travel += (float) Math.hypot(e.getX() - downX, e.getY() - downY);
+                downX = e.getX();
+                downY = e.getY();
+                if (travel > slop * 3) {
+                    petting = true;
+                    long now = SystemClock.uptimeMillis();
+                    petUntil = now + 1500;
+                    if (now - lastPetAt > 350) {
+                        lastPetAt = now;
+                        burstHearts(1);
+                        if (petListener != null) petListener.onPet();
+                    }
+                    invalidate();
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+                if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(false);
+                if (!petting) performClick();
+                petting = false;
+                return true;
+            case MotionEvent.ACTION_CANCEL:
+                if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(false);
+                petting = false;
+                return true;
+            default:
+                return true;
+        }
+    }
+
+    @Override
+    public boolean performClick() {
+        return super.performClick();
     }
 
     // ------------------------------------------------------------------ controle
@@ -251,6 +390,27 @@ public final class DogView extends View {
         if (wiggleStart > 0 && now - wiggleStart < 450) {
             earRT += 9f * (float) Math.sin((now - wiggleStart) / 450.0 * 3 * Math.PI);
         }
+        float tp = trickProgress(now);
+        if (trick != null) {
+            switch (trick) {
+                case "latir":
+                    earLT = 20;
+                    earRT = -10;
+                    break;
+                case "abanar":
+                    tiltT += 10f * (float) Math.sin(tp * 6 * Math.PI) * (1 - tp);
+                    break;
+                case "pata":
+                    tiltT -= 6;
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (now < petUntil) {
+            earLT -= 10; // orelhas para trás, curtindo o carinho
+            earRT += 8;
+        }
         earL = approach(earL, earLT, dt, 8f);
         earR = approach(earR, earRT, dt, 10f);
         tilt = approach(tilt, tiltT, dt, 5f);
@@ -263,6 +423,8 @@ public final class DogView extends View {
                     ? Math.min(1f, level * 1.7f)
                     : 0.15f + 0.65f * Math.abs((float) (Math.sin(t * 7.3) * Math.sin(t * 2.9 + 1)));
         }
+        if ("latir".equals(trick)) mouthT = Math.max(0f, (float) Math.sin(tp * 4 * Math.PI));
+        if (now - chewAt < 1600) mouthT = 0.15f + 0.45f * Math.abs((float) Math.sin(t * 14));
         mouth = approach(mouth, mouthT, dt, 18f);
 
         if (now >= nextBlinkAt) {
@@ -296,9 +458,17 @@ public final class DogView extends View {
         long sincePoke = now - pokeAt;
         if (sincePoke >= 0 && sincePoke < 380) hop -= 8f * (float) Math.sin(Math.PI * sincePoke / 380.0);
         if (mood == Mood.ANIMADO && mode == Mode.IDLE) hop -= 3f * Math.max(0f, (float) Math.sin(t * 5));
+        float tp = trickProgress(now);
+        if ("pular".equals(trick)) hop -= 20f * Math.abs((float) Math.sin(2 * Math.PI * tp));
+        if ("sentar".equals(trick)) hop += 12f * (tp < 0.25f ? tp / 0.25f : tp > 0.8f ? (1 - tp) / 0.2f : 1f);
         float breathe = 0.9f * (float) Math.sin(t * 2 * Math.PI / 3.4);
+        boolean happy = happyNow(now);
 
         c.translate(0, -6 + hop);
+        if ("rolar".equals(trick)) {
+            float e = tp < 0.5f ? 2 * tp * tp : 1 - (float) Math.pow(-2 * tp + 2, 2) / 2;
+            c.rotate(360f * e, 0, 30);
+        }
         fill(c, BODY, FUR);
         fill(c, CHEST, CREAM);
         fill(c, COLLAR_P, COLLAR);
@@ -333,19 +503,23 @@ public final class DogView extends View {
         c.drawOval(oval, fill);
 
         drawBrows(c);
-        drawEyes(c, now);
+        drawEyes(c, now, happy);
         fill(c, NOSE, INK);
         fill.setColor(0x59FFFFFF);
         oval.set(-6, 3.4f, 0, 6.6f);
         c.drawOval(oval, fill);
-        drawMouth(c, t);
-        if ((mood == Mood.FELIZ || mood == Mood.ANIMADO) && mode != Mode.SLEEPING) {
+        drawMouth(c, t, happy);
+        if (now - chewAt < 1600) drawBone(c, now);
+        if ((mood == Mood.FELIZ || mood == Mood.ANIMADO || happy) && mode != Mode.SLEEPING) {
             fill.setColor(BLUSH);
             c.drawCircle(-35, 14, 6, fill);
             c.drawCircle(35, 14, 6, fill);
         }
         c.restore();
 
+        if ("pata".equals(trick)) drawPaw(c, tp);
+        if ("latir".equals(trick)) drawBark(c, tp);
+        drawHearts(c, now);
         if (mode == Mode.THINKING) drawThinking(c, t);
         if (mode == Mode.SLEEPING) drawZzz(c, t);
         c.restore();
@@ -376,8 +550,8 @@ public final class DogView extends View {
         }
     }
 
-    private void drawEyes(Canvas c, long now) {
-        boolean happyArcs = mood == Mood.ANIMADO && mode == Mode.IDLE;
+    private void drawEyes(Canvas c, long now, boolean happy) {
+        boolean happyArcs = (mood == Mood.ANIMADO && mode == Mode.IDLE) || (happy && mode != Mode.SLEEPING);
         boolean sleeping = mode == Mode.SLEEPING;
         float lid = 0;
         if (mode != Mode.LISTENING) {
@@ -430,7 +604,7 @@ public final class DogView extends View {
         }
     }
 
-    private void drawMouth(Canvas c, float t) {
+    private void drawMouth(Canvas c, float t, boolean happy) {
         stroke.setColor(INK);
         stroke.setStrokeWidth(2.2f);
         c.drawLine(0, 15, 0, 21, stroke);
@@ -453,11 +627,11 @@ public final class DogView extends View {
             c.drawPath(SMILE, stroke);
             return;
         }
-        if ((mood == Mood.TRISTE || mood == Mood.PREOCUPADO) && mode != Mode.SPEAKING) {
+        if ((mood == Mood.TRISTE || mood == Mood.PREOCUPADO) && mode != Mode.SPEAKING && !happy) {
             c.drawPath(FROWN, stroke);
             return;
         }
-        if ((mood == Mood.FELIZ || mood == Mood.ANIMADO) && mode == Mode.IDLE) {
+        if (((mood == Mood.FELIZ || mood == Mood.ANIMADO) && mode == Mode.IDLE) || happy) {
             float len = 9 + 2 * (float) Math.sin(t * 8);
             work.reset();
             work.moveTo(-6, 24);
@@ -473,6 +647,84 @@ public final class DogView extends View {
             stroke.setStrokeWidth(2.4f);
         }
         c.drawPath(SMILE, stroke);
+    }
+
+    /** Andamento do truque atual, de 0 a 1 (encerra o truque ao terminar). */
+    private float trickProgress(long now) {
+        if (trick == null) return 0f;
+        float p = (now - trickAt) / (float) trickDur;
+        if (p >= 1f) {
+            trick = null;
+            return 0f;
+        }
+        return Math.max(0f, p);
+    }
+
+    /** "Dá a pata": a patinha sobe na frente do peito e acena. */
+    private void drawPaw(Canvas c, float p) {
+        float up = p < 0.2f ? p / 0.2f : p > 0.85f ? (1 - p) / 0.15f : 1f;
+        float wave = (p > 0.2f && p < 0.85f) ? 16f * (float) Math.sin((p - 0.2f) / 0.65f * 4 * Math.PI) : 0f;
+        c.save();
+        c.translate(-24, 112 - 52 * up);
+        c.rotate(-10 + wave);
+        fill(c, PAW, FUR);
+        fill.setColor(FUR);
+        c.drawCircle(0, -2, 12, fill);
+        fill.setColor(0xFF6B4A3A);
+        c.drawCircle(-6, -7, 2.3f, fill);
+        c.drawCircle(0, -9.5f, 2.4f, fill);
+        c.drawCircle(6, -7, 2.3f, fill);
+        oval.set(-6, -3.5f, 6, 5.5f);
+        c.drawOval(oval, fill);
+        c.restore();
+    }
+
+    /** "Au!" num balãozinho. */
+    private void drawBark(Canvas c, float p) {
+        zText.setTextSize(22);
+        zText.setAlpha(Math.round(255 * Math.min(1f, (1 - p) * 2)));
+        c.drawText("AU!", -64, -72 - 10 * p, zText);
+        zText.setAlpha(255);
+    }
+
+    /** Ossinho na boca enquanto mastiga o petisco. */
+    private void drawBone(Canvas c, long now) {
+        float p = (now - chewAt) / 1600f;
+        float scale = 1f - 0.5f * p;
+        c.save();
+        c.translate(0, 33);
+        c.rotate(-12);
+        c.scale(scale, scale);
+        fill.setColor(BONE);
+        c.drawRect(-11, -3, 11, 3, fill);
+        c.drawCircle(-12, -3.5f, 4, fill);
+        c.drawCircle(-12, 3.5f, 4, fill);
+        c.drawCircle(12, -3.5f, 4, fill);
+        c.drawCircle(12, 3.5f, 4, fill);
+        stroke.setColor(BONE_EDGE);
+        stroke.setStrokeWidth(0.8f);
+        c.drawLine(-8, -3, 8, -3, stroke);
+        c.drawLine(-8, 3, 8, 3, stroke);
+        stroke.setColor(INK);
+        c.restore();
+    }
+
+    /** Coraçõezinhos subindo (carinho, petisco, rabo abanando). */
+    private void drawHearts(Canvas c, long now) {
+        for (int i = 0; i < heartAt.length; i++) {
+            long age = now - heartAt[i];
+            if (age < 0 || age > 1400) continue;
+            float p = age / 1400f;
+            c.save();
+            c.translate(heartX[i] + 6 * (float) Math.sin(p * 6), -60 - 50 * p);
+            float sc = 0.9f + 0.6f * p;
+            c.scale(sc, sc);
+            fill.setColor(HEART);
+            fill.setAlpha(Math.round(255 * (1 - p)));
+            c.drawPath(HEART_P, fill);
+            fill.setAlpha(255);
+            c.restore();
+        }
     }
 
     private void drawThinking(Canvas c, float t) {

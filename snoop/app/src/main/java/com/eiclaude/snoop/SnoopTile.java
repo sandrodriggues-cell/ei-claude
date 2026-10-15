@@ -23,7 +23,6 @@ public class SnoopTile extends TileService {
     private static final int CARAMEL = 0xFFD88C43;
     private static final int INK = 0xFFF5F1EC;
     private static final int DARK = 0xFF1E1A17;
-    private static final int MUTED = 0xFFA79F96;
 
     @Override
     protected ListenableFuture<TileBuilders.Tile> onTileRequest(RequestBuilders.TileRequest request) {
@@ -89,7 +88,10 @@ public class SnoopTile extends TileService {
         if (Prefs.inQuiet(this, now)) return "Zzz... descansando";
         long idle = Moves.idleMinutes(this, now);
         int limit = Prefs.idleMinutes(this);
+        if (Pet.treatsAvailable(this, now) > 0 && Pet.belly(this, now) < 60) return "Tem petisco pra mim?";
+        if (Pet.belly(this, now) < 25) return "Tô com fome...";
         if (limit > 0 && idle >= 0 && idle >= limit * 3L / 4) return "Bora dar uma volta?";
+        if (Shift.enabled(this) && Shift.isOff(this, Shift.date(now))) return "Hoje é folga!";
         return "Tô aqui, " + Prefs.name(this) + "!";
     }
 

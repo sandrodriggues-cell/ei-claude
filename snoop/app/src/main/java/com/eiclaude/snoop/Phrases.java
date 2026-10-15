@@ -42,6 +42,40 @@ final class Phrases {
             "Snoop chamando! Bora bater um papo, {nome}?",
     };
 
+    private static final String[] SHIFT_START = {
+            "{nome}, daqui a meia hora começa o turno. Bom trabalho! Leva água, hein?",
+            "Bom turno, {nome}! Vou ficar aqui de guarda te esperando.",
+            "Hora de se arrumar pro turno, {nome}. Arrasa lá! Au!",
+    };
+
+    private static final String[] SHIFT_END = {
+            "Turno encerrado! Agora é descansar, {nome}. Você merece.",
+            "Acabou o turno! Bom descanso, {nome}. Vou deitar aqui do seu lado.",
+            "Fim de turno, {nome}! Missão cumprida. Bora descansar.",
+    };
+
+    private static final String[] SHIFT_END_OFF = {
+            "Turno encerrado e agora é folga! Aproveita, {nome}! Au au!",
+            "Acabou o último turno! Folga chegando, {nome}. Bora comemorar com um passeio?",
+    };
+
+    private static final String[] HUNGRY = {
+            "{nome}, tô com a barriga roncando... Bora andar pra ganhar um petisco?",
+            "Au... tô com fome. Uns passos e já ganho um petisco, {nome}!",
+            "Meu potinho tá vazio, {nome}. Que tal uma caminhada pra encher?",
+    };
+
+    private static final String[] HUNGRY_TREAT = {
+            "{nome}, tô com fome! Você já ganhou um petisco andando. Me dá?",
+            "Au au! Tem petisco guardado e eu tô com fome, {nome}. Abre o app e me dá um?",
+    };
+
+    private static final String[] TREAT_THANKS = {
+            "Nham nham! Valeu pelo petisco, {nome}!",
+            "Que delícia! Você é o melhor humano do mundo.",
+            "Au au! Petisco aprovado. Obrigado, {nome}!",
+    };
+
     private static final Random RANDOM = new Random();
 
     private Phrases() {
@@ -61,6 +95,32 @@ final class Phrases {
 
     static String miss(Context c) {
         return pick(c, "miss", MISS);
+    }
+
+    static String greetingWithShift(Context c) {
+        return greeting(c) + Shift.todayLine(c, System.currentTimeMillis());
+    }
+
+    static String shiftStart(Context c) {
+        return pick(c, "turno_ini", SHIFT_START);
+    }
+
+    static String shiftEnd(Context c, boolean offNext) {
+        return offNext ? pick(c, "turno_fim_folga", SHIFT_END_OFF) : pick(c, "turno_fim", SHIFT_END);
+    }
+
+    static String hungry(Context c, boolean hasTreat) {
+        return hasTreat ? pick(c, "fome_petisco", HUNGRY_TREAT) : pick(c, "fome", HUNGRY);
+    }
+
+    static String treatThanks(Context c) {
+        return pick(c, "petisco", TREAT_THANKS);
+    }
+
+    static String reminder(Context c, String what) {
+        String w = what == null ? "" : what.trim();
+        if (w.endsWith(".")) w = w.substring(0, w.length() - 1);
+        return "Au! " + Prefs.name(c) + ", você pediu pra eu lembrar: " + w + ".";
     }
 
     static String salutation(long now) {

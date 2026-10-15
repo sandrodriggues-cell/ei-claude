@@ -155,7 +155,12 @@ final class Brain {
                 + "diga com carinho que daqui do relógio você não consegue ver. Não invente fatos nem números. ");
         b.append("Cuidado: se ele contar algo sério de saúde ou disser que está muito mal, seja acolhedor e "
                 + "incentive a procurar pessoas de confiança ou um profissional. ");
-        b.append("Agora é ").append(when).append(" (fuso ").append(TimeZone.getDefault().getID()).append("). ");
+        String iso = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ROOT).format(new Date(now));
+        b.append("Agora é ").append(when).append(" (").append(iso).append(", fuso ")
+                .append(TimeZone.getDefault().getID()).append("). ");
+        b.append(Shift.context(c, now));
+        b.append(Pet.summary(c, now));
+        b.append(Reminders.describe(c));
         if (idleMinutes >= 30) {
             b.append("Pelos passos do relógio, ele está há uns ").append(idleMinutes)
                     .append(" minutos sem se mexer. ");
@@ -173,7 +178,14 @@ final class Brain {
                 .append("\"humor\" é como você se sente agora: feliz, animado, curioso, calmo, triste, preocupado ou sonolento; ")
                 .append("\"lembrar\" é uma informação nova e duradoura que ele contou sobre si mesmo e que vale guardar ")
                 .append("(gostos, rotina, pessoas, planos), numa frase curta em terceira pessoa, ou vazio; ")
-                .append("\"fim\" é true só se ele quiser encerrar a conversa (tchau, fechar, até mais). ")
+                .append("\"fim\" é true só se ele quiser encerrar a conversa (tchau, fechar, até mais); ")
+                .append("\"truque\" é um truque que você faz na tela: sentar, pata (dar a pata), rolar, latir, pular ou abanar ")
+                .append("(o rabo, de alegria); use quando ele pedir um truque ou quando combinar com o momento, senão nenhum; ")
+                .append("\"lembrete\" só quando ele pedir para ser lembrado de algo num horário: quando é a data e hora local ")
+                .append("no formato AAAA-MM-DD HH:MM, calculada a partir de agora; texto é o que lembrar, curto; repetir é diario ")
+                .append("se for todo dia, senão nao; confirme o horário na resposta. ")
+                .append("\"cancelar_lembrete\" é uma palavra-chave do lembrete que ele pedir para cancelar. ")
+                .append("Se não houver lembrete para marcar ou cancelar, não preencha esses dois campos. ")
                 .append("Se o áudio vier sem fala ou incompreensível, deixe \"ouvi\" vazio e peça de um jeito fofo para ele repetir.");
         return b.toString();
     }

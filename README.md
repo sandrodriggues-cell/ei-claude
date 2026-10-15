@@ -86,7 +86,12 @@ Na pasta `snoop/` fica o **Snoop**, um app separado para o Galaxy Watch: um vira
   - **Saudação** todo dia num horário (padrão 14:00, ajustável).
   - **Saudade:** se ficar 2 dias sem conversar.
   - **Silêncio:** padrão das 08:00 às 14:00 (ajustável). O Não perturbe e o modo dormir do relógio também calam os avisos.
+- **Carinho e truques:** deslize o dedo na cabeça dele para fazer carinho (ele fecha os olhos, mostra a língua e solta corações). Peça truques por voz: "senta", "dá a pata", "rola", "late", "pula", "abana o rabo".
+- **Lembretes por voz:** "Snoop, me lembra de tomar água às 15h" ou "todo dia às 7h me lembra do remédio". Ele marca no relógio e chama na hora. "Cancela o lembrete da água" desmarca. A lista fica em **Ajustes › Lembretes**.
+- **Barriga, passeio e alegria:** três barrinhas embaixo dele. A barriga esvazia com o tempo e enche com **petiscos**, que você ganha andando (1 a cada 1.500 passos no dia, até 6); aparece o botão **Dar petisco**. O passeio mostra quanto você andou nas últimas 3 horas. A alegria sobe com conversa, carinho e truques. Com fome, ele avisa.
+- **Turno e folgas:** configure a escala na página do celular (por exemplo 6 dias de trabalho e 2 de folga, a data de uma folga e o horário do turno). Ele deseja bom turno meia hora antes, avisa quando o turno acaba (e quando começa a folga), conta na saudação se hoje é folga e responde "quando é minha próxima folga?".
 - **Bloco (tile):** rosto do Snoop, uma frase do momento e o botão **Conversar**.
+- **Chamar por voz:** diga "Ok Google, abrir Snoop". Ele abre já ouvindo.
 - **Voz:** leitor de texto do relógio (rápido e não gasta o plano grátis) ou **voz do Gemini** (mais natural, leva uns segundos a mais). Se o relógio não tiver voz em português, ele usa a do Gemini sozinho.
 
 ### 1. Chave grátis do Gemini

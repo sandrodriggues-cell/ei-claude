@@ -51,6 +51,9 @@ public class SettingsActivity extends Activity implements SetupServer.Listener {
     private TextView quietChip;
     private TextView missChip;
     private TextView keepChip;
+    private TextView shiftChip;
+    private TextView remindersChip;
+    private TextView remindersText;
     private TextView notesChip;
     private TextView notesText;
     private TextView forgetChip;
@@ -183,6 +186,31 @@ public class SettingsActivity extends Activity implements SetupServer.Listener {
         });
         col.addView(keepChip);
 
+        shiftChip = Ui.chip(this, "", v -> {
+            if (Shift.reference(this) == null) {
+                Toast.makeText(this, "Configure a escala na página do celular (endereço acima)", Toast.LENGTH_LONG).show();
+                return;
+            }
+            Shift.setEnabled(this, !Shift.enabled(this));
+            Pulse.schedule(this);
+            refreshAll();
+        });
+        col.addView(shiftChip);
+
+        remindersChip = Ui.chip(this, "", v -> {
+            boolean show = remindersText.getVisibility() != View.VISIBLE;
+            remindersText.setVisibility(show ? View.VISIBLE : View.GONE);
+        });
+        col.addView(remindersChip);
+        remindersText = Ui.text(this, 12, Ui.SOFT, false);
+        remindersText.setVisibility(View.GONE);
+        col.addView(remindersText, Ui.wide(this, 6));
+        col.addView(Ui.chip(this, "Apagar lembretes", v -> {
+            Reminders.clear(this);
+            Toast.makeText(this, "Lembretes apagados", Toast.LENGTH_SHORT).show();
+            refreshAll();
+        }));
+
         col.addView(Ui.chip(this, "Testar um aviso", v -> {
             if (Pulse.say(this, Notifier.ID_TEST, Phrases.greeting(this), "animado")) {
                 Toast.makeText(this, "Aviso enviado", Toast.LENGTH_SHORT).show();
@@ -276,6 +304,21 @@ public class SettingsActivity extends Activity implements SetupServer.Listener {
         quietChip.setText("Silêncio: " + Prefs.quietLabel(this));
         missChip.setText(Prefs.missYou(this) ? "Saudade: ligada" : "Saudade: desligada");
         keepChip.setText(Prefs.keepListening(this) ? "Conversa contínua: sim" : "Conversa contínua: não");
+        long nowMs = System.currentTimeMillis();
+        if (Shift.reference(this) == null) {
+            shiftChip.setText("Escala: configurar no celular");
+        } else if (Shift.enabled(this)) {
+            shiftChip.setText("Escala: " + Shift.workDays(this) + "x" + Shift.offDays(this) + " · "
+                    + (Shift.isOff(this, Shift.date(nowMs)) ? "hoje é folga" : "hoje tem turno"));
+        } else {
+            shiftChip.setText("Escala: desligada");
+        }
+        List<Reminders.Item> reminders = Reminders.list(this);
+        remindersChip.setText("Lembretes (" + reminders.size() + ")");
+        StringBuilder rb = new StringBuilder();
+        if (reminders.isEmpty()) rb.append("Nenhum. Peça por voz: \"Snoop, me lembra de tomar água às 15h\".");
+        for (Reminders.Item it : reminders) rb.append("• ").append(Reminders.label(it)).append('\n');
+        remindersText.setText(rb.toString().trim());
         List<String> notes = Brain.notes(this);
         notesChip.setText("O que o Snoop sabe (" + notes.size() + ")");
         StringBuilder nb = new StringBuilder();

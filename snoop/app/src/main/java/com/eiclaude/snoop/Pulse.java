@@ -23,13 +23,24 @@ public class Pulse extends BroadcastReceiver {
     private static final long GREET_WINDOW_MS = 3L * 60 * 60 * 1000;
     private static final long PRAISE_WINDOW_MS = 90L * 60 * 1000;
     private static final long MISS_AFTER_MS = 48L * 60 * 60 * 1000;
+    private static final long SHIFT_WINDOW_MS = 45L * 60 * 1000;
+    private static final long HUNGRY_EVERY_MS = 6L * 60 * 60 * 1000;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         final Context app = context.getApplicationContext();
+        final String action = intent == null ? "" : String.valueOf(intent.getAction());
+        final long reminderId = intent == null ? -1 : intent.getLongExtra(Reminders.EXTRA_ID, -1);
         final PendingResult result = goAsync();
         new Thread(() -> {
             try {
+                if (Reminders.ACTION_FIRE.equals(action)) {
+                    Reminders.fire(app, reminderId);
+                    return; // o finally ainda reagenda e atualiza o bloco
+                }
+                if (Intent.ACTION_BOOT_COMPLETED.equals(action) || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
+                    Reminders.rescheduleAll(app);
+                }
                 Health.registerIfNeeded(app);
                 check(app, System.currentTimeMillis());
             } catch (Throwable ignored) {
@@ -54,6 +65,10 @@ public class Pulse extends BroadcastReceiver {
         long next = now + TICK_MS;
         long greet = nextGreeting(c, now);
         if (greet > now && greet < next) next = greet + 30_000;
+        for (long event : new long[]{Shift.startReminderToday(c, now), Shift.endToday(c, now),
+                Shift.startReminderToday(c, now + 24L * 60 * 60 * 1000), Shift.endToday(c, now + 24L * 60 * 60 * 1000)}) {
+            if (event > now && event < next) next = event + 30_000;
+        }
         Intent i = new Intent(c, Pulse.class).setAction(ACTION_TICK);
         PendingIntent pi = PendingIntent.getBroadcast(c, 1, i,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -98,6 +113,26 @@ public class Pulse extends BroadcastReceiver {
         long idle = Moves.idleMinutes(c, now);
         long lastIdleAlert = Prefs.getLong(c, "aviso_parado_em");
 
+        String today0 = Prefs.today(now);
+
+        // 0. Turno: "bom turno" meia hora antes e "turno encerrado" no fim.
+        long shiftStart = Shift.startReminderToday(c, now);
+        if (shiftStart > 0 && now >= shiftStart && now - shiftStart < SHIFT_WINDOW_MS && !quiet
+                && !today0.equals(Prefs.getString(c, "turno_ini_dia"))) {
+            if (say(c, Notifier.ID_SHIFT, Phrases.shiftStart(c), "animado")) {
+                Prefs.putString(c, "turno_ini_dia", today0);
+                return;
+            }
+        }
+        long shiftEnd = Shift.endToday(c, now);
+        if (shiftEnd > 0 && now >= shiftEnd && now - shiftEnd < SHIFT_WINDOW_MS && !quiet
+                && !today0.equals(Prefs.getString(c, "turno_fim_dia"))) {
+            if (say(c, Notifier.ID_SHIFT, Phrases.shiftEnd(c, Shift.offAfterEnd(c, now)), "feliz")) {
+                Prefs.putString(c, "turno_fim_dia", today0);
+                return;
+            }
+        }
+
         // 1. Saudação do dia.
         int gm = Prefs.greetMinute(c);
         if (gm >= 0) {
@@ -105,7 +140,7 @@ public class Pulse extends BroadcastReceiver {
             String today = Prefs.today(now);
             if (!quiet && now >= at && now - at < GREET_WINDOW_MS
                     && !today.equals(Prefs.getString(c, "saudacao_dia"))) {
-                if (say(c, Notifier.ID_GREETING, Phrases.greeting(c), "animado")) {
+                if (say(c, Notifier.ID_GREETING, Phrases.greetingWithShift(c), "animado")) {
                     Prefs.putString(c, "saudacao_dia", today);
                     return;
                 }
@@ -132,7 +167,15 @@ public class Pulse extends BroadcastReceiver {
             }
         }
 
-        // 4. Saudade: dois dias sem abrir o app.
+        // 4. Fome: barriga quase vazia (no máximo a cada 6 horas).
+        if (!quiet && Pet.belly(c, now) < 20 && now - Prefs.getLong(c, "fome_em") > HUNGRY_EVERY_MS) {
+            if (say(c, Notifier.ID_HUNGRY, Phrases.hungry(c, Pet.treatsAvailable(c, now) > 0), "triste")) {
+                Prefs.putLong(c, "fome_em", now);
+                return;
+            }
+        }
+
+        // 5. Saudade: dois dias sem abrir o app.
         long opened = Prefs.getLong(c, "aberto_em");
         long missed = Prefs.getLong(c, "saudade_em");
         if (Prefs.missYou(c) && !quiet && opened > 0 && now - opened > MISS_AFTER_MS && now - missed > MISS_AFTER_MS) {

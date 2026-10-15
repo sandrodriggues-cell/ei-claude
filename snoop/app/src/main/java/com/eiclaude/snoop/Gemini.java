@@ -47,6 +47,11 @@ final class Gemini {
         String mood = "feliz";
         String remember = "";
         boolean end;
+        String trick = "";
+        String reminderWhen = "";
+        String reminderText = "";
+        boolean reminderDaily;
+        String cancelReminder = "";
         int tokensIn;
         int tokensOut;
     }
@@ -167,11 +172,30 @@ final class Gemini {
                 .put("description", "Informação nova e duradoura que o dono contou sobre si, ou vazio."));
         props.put("fim", new JSONObject().put("type", "BOOLEAN")
                 .put("description", "true só se o dono quiser encerrar a conversa."));
-        JSONArray order = new JSONArray().put("ouvi").put("resposta").put("humor").put("lembrar").put("fim");
+        JSONArray tricks = new JSONArray().put("nenhum");
+        for (String t : DogView.TRICKS) tricks.put(t);
+        props.put("truque", new JSONObject().put("type", "STRING").put("enum", tricks)
+                .put("description", "Truque que o Snoop faz agora (se o dono pedir ou se combinar), ou nenhum."));
+        props.put("lembrete", new JSONObject().put("type", "OBJECT")
+                .put("description", "Só quando o dono pedir para ser lembrado de algo num horário.")
+                .put("properties", new JSONObject()
+                        .put("quando", new JSONObject().put("type", "STRING")
+                                .put("description", "Data e hora local no formato AAAA-MM-DD HH:MM."))
+                        .put("texto", new JSONObject().put("type", "STRING")
+                                .put("description", "O que lembrar, curto."))
+                        .put("repetir", new JSONObject().put("type", "STRING")
+                                .put("enum", new JSONArray().put("nao").put("diario"))))
+                .put("required", new JSONArray().put("quando").put("texto").put("repetir")));
+        props.put("cancelar_lembrete", new JSONObject().put("type", "STRING")
+                .put("description", "Palavra-chave do lembrete que o dono pediu para cancelar."));
+        JSONArray required = new JSONArray().put("ouvi").put("resposta").put("humor").put("lembrar").put("fim")
+                .put("truque");
+        JSONArray order = new JSONArray().put("ouvi").put("resposta").put("humor").put("lembrar").put("fim")
+                .put("truque").put("lembrete").put("cancelar_lembrete");
         return new JSONObject()
                 .put("type", "OBJECT")
                 .put("properties", props)
-                .put("required", order)
+                .put("required", required)
                 .put("propertyOrdering", order);
     }
 
@@ -212,6 +236,15 @@ final class Gemini {
             r.mood = j.optString("humor", "feliz").trim();
             r.remember = j.optString("lembrar", "").trim();
             r.end = j.optBoolean("fim", false);
+            String trick = j.optString("truque", "").trim();
+            r.trick = "nenhum".equals(Text.fold(trick)) ? "" : trick;
+            JSONObject rem = j.optJSONObject("lembrete");
+            if (rem != null) {
+                r.reminderWhen = rem.optString("quando", "").trim();
+                r.reminderText = rem.optString("texto", "").trim();
+                r.reminderDaily = "diario".equals(Text.fold(rem.optString("repetir", "")));
+            }
+            r.cancelReminder = j.optString("cancelar_lembrete", "").trim();
         } else {
             r.say = raw;
         }

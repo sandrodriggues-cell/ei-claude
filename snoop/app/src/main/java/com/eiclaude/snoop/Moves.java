@@ -66,6 +66,32 @@ final class Moves {
         return Math.max(0, (now - since) / 60000);
     }
 
+    /** Passos de hoje, pelo contador diário do Health Services; -1 se não houver dado de hoje. */
+    static synchronized long stepsToday(Context c, long now) {
+        List<Sample> s = load(c, "hs");
+        if (s.isEmpty()) return -1;
+        Sample last = s.get(s.size() - 1);
+        if (!Prefs.today(last.t).equals(Prefs.today(now))) return 0;
+        return last.v;
+    }
+
+    /** Passos dados desde {@code since} (somando as duas fontes, fica com a maior). */
+    static synchronized long stepsSince(Context c, long since) {
+        long best = 0;
+        for (String source : new String[]{"hs", "sensor"}) {
+            List<Sample> s = load(c, source);
+            long sum = 0;
+            for (int i = 1; i < s.size(); i++) {
+                Sample a = s.get(i);
+                Sample b = s.get(i - 1);
+                if (a.t < since) continue;
+                sum += a.v >= b.v ? a.v - b.v : a.v;
+            }
+            best = Math.max(best, sum);
+        }
+        return best;
+    }
+
     /** Momento da última "rajada" de passos (≥ MOVE_STEPS em 10 min), ou -1. */
     private static long lastMove(List<Sample> s) {
         for (int i = s.size() - 1; i > 0; i--) {
