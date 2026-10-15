@@ -109,6 +109,6 @@ O APK é o `Snoop-vN.apk` mais recente em **Releases**. Instale do mesmo jeito q
 - **Internet:** o Snoop usa a internet do relógio (pelo celular via Bluetooth ou pelo Wi-Fi).
 - **Plano grátis:** tem limite de pedidos por minuto e por dia (os números exatos da sua conta aparecem no AI Studio). Se estourar, ele avisa que "cansou" e volta a funcionar depois. Em **Ajustes** aparece quantos pedidos foram feitos hoje.
 - **Cérebro:** **rápido** (Gemini 3.5 Flash-Lite, padrão) ou **esperto** (Gemini 3.8 Flash, pensa mais e demora mais).
-- **Privacidade:** a conversa vai para o Google. No plano grátis, o Google pode usar o conteúdo para melhorar os produtos dele; evite contar coisas muito pessoais.
+- **Privacidade:** a conversa (e as lembranças que vão junto) segue para o Google. No plano grátis, o Google usa esse conteúdo para melhorar os produtos dele e revisores humanos podem ler trechos (desligados da sua conta). O próprio Google pede para não mandar informações sensíveis ou pessoais no plano grátis.
 - **Sem internet em tempo real:** clima, notícias e placares ficam de fora; ele avisa quando não sabe.
 - **Passos:** vêm do Health Services do Wear OS. Em **Ajustes**, o diagnóstico mostra se está ligado e há quanto tempo você está parado.
