@@ -11,3 +11,6 @@ relogio/app/src/main/assets/model-pt/
 relogio/app/build/
 model.zip
 vosk-model-*/
+
+snoop/app/build/
+snoop/build/
