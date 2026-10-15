@@ -1,0 +1,19 @@
+// Snoop: o cachorro virtual do relógio. Projeto separado, compila sozinho a partir desta pasta.
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'Snoop'
+include ':app'

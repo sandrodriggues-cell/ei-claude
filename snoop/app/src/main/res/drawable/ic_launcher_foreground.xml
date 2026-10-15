@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gerado a partir do desenho do Snoop (mesmos traços do DogView). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    
+    <group android:translateX="54" android:translateY="58" android:scaleX="0.42" android:scaleY="0.42">
+        <path android:fillColor="#2F80ED" android:pathData="M -33 39 C -14 50 14 50 33 39 L 35 48 C 14 60 -14 60 -35 48 Z"/>
+        <path android:fillColor="#F2C14E" android:pathData="M -7 60 A 7 7 0 1 0 7 60 A 7 7 0 1 0 -7 60 Z"/>
+        <group android:translateX="-36" android:translateY="-34"><path android:fillColor="#A95C24" android:pathData="M 12 -2 C 0 -13 -20 -12 -29 4 C -38 22 -37 50 -27 61 C -19 69 -8 63 -4 48 C 0 33 9 15 12 -2 Z"/></group>
+        <group android:translateX="32" android:translateY="-38"><path android:fillColor="#A95C24" android:pathData="M -16 6 C -12 -14 -1 -33 15 -44 C 26 -32 28 -10 21 9 Z"/><path android:fillColor="#874519" android:pathData="M 15 -44 C 21 -38 25 -31 27 -26 C 30 -18 31 -12 30 -6 C 23 -12 14 -22 6 -32 C 9 -37 12 -41 15 -44 Z"/></group>
+        <path android:fillColor="#D88C43" android:pathData="M 0 -50 C 27 -50 51 -40 54 -12 C 57 12 48 34 27 42 C 14 47 -14 47 -27 42 C -48 34 -57 12 -54 -12 C -51 -40 -27 -50 0 -50 Z"/>
+        <path android:fillColor="#F7E0BC" android:pathData="M -5 -35 C -3 -41 3 -41 5 -35 L 11 6 L -11 6 Z"/>
+        <path android:fillColor="#F7E0BC" android:pathData="M -29 23 A 29 20 0 1 0 29 23 A 29 20 0 1 0 -29 23 Z"/>
+        <path android:fillColor="#F7E0BC" android:pathData="M -26 -24 A 6 3.6 0 1 0 -14 -24 A 6 3.6 0 1 0 -26 -24 Z"/>
+        <path android:fillColor="#2A1C14" android:pathData="M -27 -7 A 7 8 0 1 0 -13 -7 A 7 8 0 1 0 -27 -7 Z"/>
+        <path android:fillColor="#FFFFFF" android:pathData="M -20.0 -10 A 2.4 2.4 0 1 0 -15.200000000000001 -10 A 2.4 2.4 0 1 0 -20.0 -10 Z"/>
+        <path android:fillColor="#F7E0BC" android:pathData="M 14 -24 A 6 3.6 0 1 0 26 -24 A 6 3.6 0 1 0 14 -24 Z"/>
+        <path android:fillColor="#2A1C14" android:pathData="M 13 -7 A 7 8 0 1 0 27 -7 A 7 8 0 1 0 13 -7 Z"/>
+        <path android:fillColor="#FFFFFF" android:pathData="M 20.0 -10 A 2.4 2.4 0 1 0 24.799999999999997 -10 A 2.4 2.4 0 1 0 20.0 -10 Z"/>
+        <path android:fillColor="#2A1C14" android:pathData="M -9 7 C -9 1 9 1 9 7 C 9 12 3 15 0 15 C -3 15 -9 12 -9 7 Z"/>
+        <path android:strokeColor="#2A1C14" android:strokeWidth="2.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M 0 15 L 0 21 M -12 23 Q -6 28 0 21 Q 6 28 12 23"/>
+    </group>
+    
+</vector>

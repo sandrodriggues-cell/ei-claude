@@ -1,0 +1,62 @@
+plugins {
+    id 'com.android.application'
+}
+
+def buildNumber = (System.getenv('BUILD_NUMBER') ?: '1') as Integer
+
+android {
+    namespace 'com.eiclaude.snoop'
+    compileSdk 36
+
+    defaultConfig {
+        // App próprio, separado do Ei Claude: instalar um nunca substitui o outro.
+        applicationId 'com.eiclaude.snoop'
+        minSdk 30
+        targetSdk 34
+        versionCode buildNumber
+        versionName "snoop-${buildNumber}"
+    }
+
+    signingConfigs {
+        fixa {
+            storeFile file('../../app/eiclaude.keystore')
+            storeType 'pkcs12'
+            storePassword 'eiclaude'
+            keyAlias 'eiclaude'
+            keyPassword 'eiclaude'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.fixa
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.fixa
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    // Passos em segundo plano (Health Services do Wear OS): base do aviso "você está parado".
+    implementation 'androidx.health:health-services-client:1.1.0'
+    // Bloco (tile) do relógio.
+    implementation 'androidx.wear.tiles:tiles:1.6.2'
+    implementation 'androidx.wear.protolayout:protolayout:1.4.2'
+    implementation 'com.google.guava:guava:33.3.1-android'
+}

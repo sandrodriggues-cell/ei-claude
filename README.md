@@ -73,3 +73,42 @@ No relógio: **Configurações › Recursos avançados › Personalizar botões 
 - **Celular bloqueado:** o Ei Claude acende a tela e pede o desbloqueio; o Claude abre logo depois. Para não precisar desbloquear com o celular no bolso, dá para usar o **Extend Unlock** da Samsung (pode aparecer como Smart Lock) com o relógio como dispositivo confiável (**Configurações › Tela de bloqueio e AOD › Extend Unlock › Dispositivos confiáveis**). Isso deixa o celular menos protegido enquanto o relógio estiver conectado: decida se vale a pena.
 - **Mensagens do relógio:** "desatualizado" = falta instalar o Ei Claude v4 no celular; "sem conexão" = o relógio não está ligado ao celular; "Acessibilidade" = ligue a Acessibilidade do Ei Claude no celular para o modo de voz abrir sozinho.
 - **Versão antiga com API:** as versões `relogio-v1` a `relogio-v3` conversavam direto no relógio pela API do Claude (cobrada à parte). Não são mais necessárias.
+
+## Snoop: cachorro virtual no relógio (Gemini grátis)
+
+Na pasta `snoop/` fica o **Snoop**, um app separado para o Galaxy Watch: um vira-lata caramelo animado que conversa por voz direto no relógio, sem fone e sem tirar o celular do bolso, e que chama você sozinho de vez em quando.
+
+- **Conversa:** toque no Snoop e fale. A fala vai em áudio para o **Gemini** (plano grátis do Google AI Studio), que entende e responde no jeito do Snoop. A resposta sai em voz alta e ele já volta a ouvir. Toque nele de novo para dizer "pronto" (se ele demorar a perceber que você parou de falar). Diga "tchau" para encerrar.
+- **Humor:** ele muda de cara conforme a conversa (feliz, animado, curioso, triste, sonolento…), mexe as orelhas quando ouve e a boca quando fala. Depois de um tempo sem conversa, tira um cochilo.
+- **Memória:** lembra das últimas falas e guarda o que você contar sobre você (gostos, rotina, planos). Em **Ajustes › O que o Snoop sabe** dá para ver; **Esquecer conversas e lembranças** apaga tudo.
+- **Avisos por conta própria** (vibram no relógio; tocar abre a conversa e ele fala a frase):
+  - **Parado:** sem passos por 60 minutos (ajustável), ele chama para se mexer, e comemora quando você se mexe. Não avisa com o relógio carregando.
+  - **Saudação** todo dia num horário (padrão 14:00, ajustável).
+  - **Saudade:** se ficar 2 dias sem conversar.
+  - **Silêncio:** padrão das 08:00 às 14:00 (ajustável). O Não perturbe e o modo dormir do relógio também calam os avisos.
+- **Bloco (tile):** rosto do Snoop, uma frase do momento e o botão **Conversar**.
+- **Voz:** leitor de texto do relógio (rápido e não gasta o plano grátis) ou **voz do Gemini** (mais natural, leva uns segundos a mais). Se o relógio não tiver voz em português, ele usa a do Gemini sozinho.
+
+### 1. Chave grátis do Gemini
+
+1. No celular, abra **aistudio.google.com/apikey** e entre com sua conta Google.
+2. Toque em **Create API key** e copie a chave inteira. **Não publique a chave** em lugar nenhum: ela fica só no relógio.
+
+### 2. Instalar no relógio
+
+O APK é o `Snoop-vN.apk` mais recente em **Releases**. Instale do mesmo jeito que o app do relógio do Ei Claude (seção "Instalar no relógio" acima): modo desenvolvedor, **Depuração ADB** + **Depuração sem fio**, e o **Wear Installer 2** no celular.
+
+### 3. Primeiro uso
+
+1. Abra o **Snoop** no relógio e permita **microfone**, **atividade física** (passos) e **notificações**.
+2. Toque em **Ajustes**. Com o relógio e o celular no **mesmo Wi-Fi**, aparece um endereço (`http://…:8765/1234`). Abra esse endereço no navegador do celular, cole a chave e toque em **Salvar e testar**. Nessa página também dá para mudar seu nome, cérebro, voz, horários e avisos.
+3. Volte para o Snoop e fale com ele. Para ter o bloco: deslize até o fim dos blocos do relógio, toque em **+** e escolha **Snoop**.
+
+### Bom saber
+
+- **Internet:** o Snoop usa a internet do relógio (pelo celular via Bluetooth ou pelo Wi-Fi).
+- **Plano grátis:** tem limite de pedidos por minuto e por dia (os números exatos da sua conta aparecem no AI Studio). Se estourar, ele avisa que "cansou" e volta a funcionar depois. Em **Ajustes** aparece quantos pedidos foram feitos hoje.
+- **Cérebro:** **rápido** (Gemini 3.5 Flash-Lite, padrão) ou **esperto** (Gemini 3.8 Flash, pensa mais e demora mais).
+- **Privacidade:** a conversa vai para o Google. No plano grátis, o Google pode usar o conteúdo para melhorar os produtos dele; evite contar coisas muito pessoais.
+- **Sem internet em tempo real:** clima, notícias e placares ficam de fora; ele avisa quando não sabe.
+- **Passos:** vêm do Health Services do Wear OS. Em **Ajustes**, o diagnóstico mostra se está ligado e há quanto tempo você está parado.
