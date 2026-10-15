@@ -37,6 +37,20 @@ jobs:
           set -o pipefail
           gradle -p mostrador assembleRelease --stacktrace --no-daemon 2>&1 | tee build.log
 
+      - name: Garantir que o APK é só recursos (sem classes.dex)
+        run: |
+          APK=mostrador/app/build/outputs/apk/release/app-release.apk
+          if unzip -l "$APK" | grep -q 'classes.*\.dex'; then
+            BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+            cp "$APK" sem-codigo.apk
+            zip -q -d sem-codigo.apk 'classes*.dex'
+            "$BT/zipalign" -f -p 4 sem-codigo.apk alinhado.apk
+            "$BT/apksigner" sign --ks app/eiclaude.keystore --ks-type pkcs12 --ks-pass pass:eiclaude \
+              --ks-key-alias eiclaude --key-pass pass:eiclaude --out "$APK" alinhado.apk
+            echo "classes.dex removido e APK assinado de novo"
+          fi
+          unzip -l "$APK"
+
       - name: Guardar o registro do erro no ramo "logs-mostrador"
         if: failure()
         run: |

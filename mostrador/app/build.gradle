@@ -33,10 +33,15 @@ android {
             signingConfig signingConfigs.fixa
         }
         release {
-            minifyEnabled false
+            // Sem código: o R8 descarta as classes R geradas e o APK fica só com recursos.
+            minifyEnabled true
             shrinkResources false
             signingConfig signingConfigs.fixa
         }
+    }
+
+    buildFeatures {
+        buildConfig false
     }
 
     lint {
