@@ -9,6 +9,8 @@ on:
       - '.github/workflows/relogio.yml'
       - 'snoop/**'
       - '.github/workflows/snoop.yml'
+      - 'mostrador/**'
+      - '.github/workflows/mostrador.yml'
       - 'README.md'
   workflow_dispatch:
 
