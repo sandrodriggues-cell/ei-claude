@@ -49,6 +49,8 @@ public class MainActivity extends Activity implements Speaker.Listener {
     private TextView treatChip;
     private TextView heardText;
     private TextView replyText;
+    private TextView settingsLink;
+    private Backdrop.Look look;
 
     private Speaker speaker;
     private Player player;
@@ -77,6 +79,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
         @Override
         public void run() {
             refreshStats();
+            if (Backdrop.AUTO.equals(Backdrop.current(MainActivity.this))) applyBackdrop();
             main.postDelayed(this, STATS_EVERY_MS);
         }
     };
@@ -99,6 +102,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         buildUi();
+        applyBackdrop();
         speaker = new Speaker(this, this);
         player = new Player();
         recorder = new Recorder(this);
@@ -123,6 +127,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
         resumed = true;
         Prefs.putLong(this, "aberto_em", System.currentTimeMillis());
         scroll.requestFocus();
+        applyBackdrop();
         main.removeCallbacks(statsTick);
         main.post(statsTick);
         String[] missing = missingPermissions();
@@ -140,7 +145,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
             String s = pendingSay;
             pendingSay = null;
             heardText.setText("");
-            replyText.setTextColor(Ui.INK);
+            replyText.setTextColor(look.ink);
             replyText.setText(s);
             autoListen = false;
             setMood(DogView.Mood.of(pendingMood));
@@ -152,7 +157,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
             Brain.add(this, "model", hi);
             setMood(DogView.Mood.ANIMADO);
             heardText.setText("");
-            replyText.setTextColor(Ui.INK);
+            replyText.setTextColor(look.ink);
             replyText.setText(hi);
             autoListen = false;
             speak(hi, true);
@@ -278,6 +283,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
         column.addView(replyText, Ui.wide(this, 6));
 
         TextView settings = Ui.text(this, 13, Ui.ACCENT, true);
+        settingsLink = settings;
         settings.setText("Ajustes");
         int pad = Ui.dp(this, 10);
         settings.setPadding(pad, pad, pad, pad);
@@ -323,6 +329,18 @@ public class MainActivity extends Activity implements Speaker.Listener {
         root.setKeepScreenOn(state != State.IDLE);
     }
 
+    /** Pinta o fundo escolhido e ajusta a cor dos textos para continuarem legíveis. */
+    private void applyBackdrop() {
+        look = Backdrop.look(this);
+        root.setBackground(Backdrop.drawable(look, Ui.screenWidth(this), Ui.screenHeight(this)));
+        status.setTextColor(look.muted);
+        heardText.setTextColor(look.soft);
+        if (replyText.getCurrentTextColor() != look.warn) replyText.setTextColor(look.ink);
+        settingsLink.setTextColor(look.accent);
+        stats.setColors(look.muted, look.track);
+        dog.setInk(look.light ? 0xFF2A1C14 : 0xFFF5F1EC);
+    }
+
     private void setMood(DogView.Mood m) {
         dog.setMood(m);
         moodSetAt = System.currentTimeMillis();
@@ -357,7 +375,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
         setMood(DogView.Mood.ANIMADO);
         String thanks = Phrases.treatThanks(this);
         heardText.setText("");
-        replyText.setTextColor(Ui.INK);
+        replyText.setTextColor(look.ink);
         replyText.setText(thanks);
         if (state == State.IDLE && resumed) speak(thanks, false);
     }
@@ -366,7 +384,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
         long now = System.currentTimeMillis();
         long next = Pet.stepsToNextTreat(this, now);
         heardText.setText("");
-        replyText.setTextColor(Ui.SOFT);
+        replyText.setTextColor(look.soft);
         replyText.setText("Barriga enche com petiscos: você ganha um a cada " + Pet.STEPS_PER_TREAT
                 + " passos no dia" + (next > 0 ? " (faltam " + next + ")" : "") + ". Passeio são os passos das "
                 + "últimas 3 horas. Alegria sobe com conversa, carinho (deslize o dedo na cabeça dele) e truques.");
@@ -376,7 +394,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
         setState(State.IDLE);
         dog.setMood(DogView.Mood.CURIOSO);
         heardText.setText("");
-        replyText.setTextColor(Ui.INK);
+        replyText.setTextColor(look.ink);
         replyText.setText("Oi! Eu sou o Snoop, seu cachorro virtual. Pra eu conversar, falta a chave do Gemini: "
                 + "toque em Ajustes, aqui embaixo.");
     }
@@ -384,7 +402,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
     private void showProblem(String message) {
         setState(State.IDLE);
         replyText.setText(message);
-        replyText.setTextColor(Ui.WARN);
+        replyText.setTextColor(look.warn);
         status.setText("Toque no Snoop para tentar de novo");
     }
 
@@ -532,9 +550,13 @@ public class MainActivity extends Activity implements Speaker.Listener {
         Pet.addJoy(this, 6);
 
         heardText.setText(r.heard.isEmpty() ? "" : "Você: " + r.heard);
-        replyText.setTextColor(Ui.INK);
+        replyText.setTextColor(look.ink);
         replyText.setText(say);
         setMood(DogView.Mood.of(r.mood));
+        if (!r.background.isEmpty()) {
+            Backdrop.set(this, r.background);
+            applyBackdrop();
+        }
         if (!r.trick.isEmpty() && dog.playTrick(r.trick)) {
             Pet.addJoy(this, 3);
             if ("latir".equals(Text.fold(r.trick))) Ui.buzz(this, 80);

@@ -12,12 +12,12 @@ public final class StatsView extends View {
 
     private static final String[] LABELS = {"Barriga", "Passeio", "Alegria"};
     private static final int[] COLORS = {0xFFE9A862, 0xFF5EC8D8, 0xFFFF6B8B};
-    private static final int TRACK = 0xFF2E2824;
 
     private final Paint label = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
     private final int[] values = {70, 0, 70};
+    private int track = 0x40FFFFFF;
 
     public StatsView(Context c) {
         super(c);
@@ -25,6 +25,12 @@ public final class StatsView extends View {
         label.setTextAlign(Paint.Align.CENTER);
         label.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
         setContentDescription("Barriga, passeio e alegria do Snoop");
+    }
+
+    void setColors(int labelColor, int trackColor) {
+        label.setColor(labelColor);
+        track = trackColor;
+        invalidate();
     }
 
     void setValues(int belly, int walk, int joy) {
@@ -52,7 +58,7 @@ public final class StatsView extends View {
         for (int i = 0; i < 3; i++) {
             float x = i * (cell + gap);
             c.drawText(LABELS[i], x + cell / 2f, textY, label);
-            bar.setColor(TRACK);
+            bar.setColor(track);
             rect.set(x, barY, x + cell, barY + barH);
             c.drawRoundRect(rect, barH / 2, barH / 2, bar);
             float v = Math.max(0, Math.min(100, values[i])) / 100f;

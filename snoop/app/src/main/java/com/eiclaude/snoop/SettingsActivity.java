@@ -52,6 +52,7 @@ public class SettingsActivity extends Activity implements SetupServer.Listener {
     private TextView missChip;
     private TextView keepChip;
     private TextView shiftChip;
+    private TextView backChip;
     private TextView remindersChip;
     private TextView remindersText;
     private TextView notesChip;
@@ -156,6 +157,12 @@ public class SettingsActivity extends Activity implements SetupServer.Listener {
 
         voiceChip = Ui.chip(this, "", v -> cycleVoice());
         col.addView(voiceChip);
+
+        backChip = Ui.chip(this, "", v -> {
+            Backdrop.cycle(this);
+            refreshAll();
+        });
+        col.addView(backChip);
 
         idleChip = Ui.chip(this, "", v -> {
             Prefs.setIdleMinutes(this, next(Prefs.IDLE_OPTIONS, Prefs.idleMinutes(this)));
@@ -305,6 +312,14 @@ public class SettingsActivity extends Activity implements SetupServer.Listener {
         missChip.setText(Prefs.missYou(this) ? "Saudade: ligada" : "Saudade: desligada");
         keepChip.setText(Prefs.keepListening(this) ? "Conversa contínua: sim" : "Conversa contínua: não");
         long nowMs = System.currentTimeMillis();
+        backChip.setText("Fundo: " + Backdrop.label(this));
+        Backdrop.Look bl = Backdrop.look(this);
+        android.graphics.drawable.GradientDrawable sw = new android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT, new int[]{bl.center, bl.edge});
+        sw.setCornerRadius(Ui.dp(this, 22));
+        sw.setStroke(Ui.dp(this, 1), 0x55FFFFFF);
+        backChip.setBackground(sw);
+        backChip.setTextColor(bl.ink);
         if (Shift.reference(this) == null) {
             shiftChip.setText("Escala: configurar no celular");
         } else if (Shift.enabled(this)) {

@@ -92,6 +92,7 @@ Na pasta `snoop/` fica o **Snoop**, um app separado para o Galaxy Watch: um vira
 - **Turno e folgas:** configure a escala na página do celular (por exemplo 6 dias de trabalho e 2 de folga, a data de uma folga e o horário do turno). Ele deseja bom turno meia hora antes, avisa quando o turno acaba (e quando começa a folga), conta na saudação se hoje é folga e responde "quando é minha próxima folga?".
 - **Bloco (tile):** rosto do Snoop, uma frase do momento e o botão **Conversar**.
 - **Chamar por voz:** diga "Ok Google, abrir Snoop". Ele abre já ouvindo.
+- **Fundo da tela:** Preto, Noite, Parque, Pôr do sol, Lavanda, Oceano, Vinho, Céu, Areia, Automático (muda com a hora) ou qualquer cor escolhida na página do celular. Troque em **Ajustes › Fundo** ou peça por voz: "Snoop, muda o fundo para azul". Cores escuras gastam menos bateria.
 - **Voz:** leitor de texto do relógio (rápido e não gasta o plano grátis) ou **voz do Gemini** (mais natural, leva uns segundos a mais). Se o relógio não tiver voz em português, ele usa a do Gemini sozinho.
 
 ### 1. Chave grátis do Gemini

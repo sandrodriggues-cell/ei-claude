@@ -259,6 +259,12 @@ final class SetupServer {
             Prefs.setQuiet(context, 0, 0);
         }
         Prefs.setMissYou(context, form.containsKey("saudade"));
+        String back = trim(form.get("fundo"));
+        if (Backdrop.CUSTOM.equals(back)) {
+            Backdrop.setCustom(context, trim(form.get("fundo_cor")));
+        } else if (!back.isEmpty()) {
+            Backdrop.set(context, back);
+        }
         int work = 6;
         int off = 2;
         try {
@@ -354,6 +360,24 @@ final class SetupServer {
         }
         b.append("</select></div>");
 
+        String back = Backdrop.current(context);
+        b.append("<div class=\"card\"><label for=\"fundo\">Fundo da tela do Snoop</label>")
+                .append("<select id=\"fundo\" name=\"fundo\" onchange=\"document.getElementById('cor').style.display=")
+                .append("this.value=='personalizada'?'flex':'none'\">");
+        for (String[] p : Backdrop.PRESETS) {
+            b.append("<option value=\"").append(p[0]).append("\"").append(p[0].equals(back) ? " selected" : "")
+                    .append(">").append(Text.html(p[1])).append("</option>");
+        }
+        b.append("<option value=\"").append(Backdrop.AUTO).append("\"").append(Backdrop.AUTO.equals(back) ? " selected" : "")
+                .append(">Automático (céu de dia, pôr do sol, noite)</option>");
+        b.append("<option value=\"").append(Backdrop.CUSTOM).append("\"").append(Backdrop.CUSTOM.equals(back) ? " selected" : "")
+                .append(">Escolher uma cor…</option></select>");
+        b.append("<div id=\"cor\" class=\"row\" style=\"margin-top:10px;display:")
+                .append(Backdrop.CUSTOM.equals(back) ? "flex" : "none").append("\"><input type=\"color\" name=\"fundo_cor\" value=\"")
+                .append(Backdrop.customColor(context)).append("\"><span>toque para escolher</span></div>");
+        b.append("<p class=\"hint\">Cores escuras gastam menos bateria. Em fundo claro, os textos ficam escuros. ")
+                .append("Também dá para pedir por voz: \"Snoop, muda o fundo para azul\".</p></div>");
+
         int idle = Prefs.idleMinutes(context);
         b.append("<div class=\"card\"><label for=\"parado\">Avisar quando eu ficar parado por</label><select id=\"parado\" name=\"parado\">");
         for (int m : new int[]{45, 60, 90, 120, 0}) {
@@ -429,7 +453,7 @@ final class SetupServer {
                 + "border:1px solid var(--line);border-radius:10px;font:15px system-ui,Roboto,sans-serif;background:#fff;color:var(--ink)}"
                 + "input[type=password],#chave{font-family:ui-monospace,Menlo,monospace}"
                 + ".row{display:flex;gap:10px;align-items:center}.row span{color:var(--muted);white-space:nowrap}"
-                + ".row input{flex:1;min-width:0}"
+                + ".row input{flex:1;min-width:0}input[type=color]{height:48px;padding:4px;border:1px solid var(--line);border-radius:10px;background:#fff}"
                 + ".opt{display:flex;gap:10px;align-items:flex-start;font-weight:400;padding:8px 0;margin:0}"
                 + ".opt input{margin-top:4px}.hint{color:var(--muted);font-size:14px;margin:8px 0 0;font-weight:400}"
                 + "button{width:100%;margin-top:18px;padding:15px;border:0;border-radius:12px;"

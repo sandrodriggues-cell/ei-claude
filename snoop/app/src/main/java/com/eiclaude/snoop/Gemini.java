@@ -52,6 +52,7 @@ final class Gemini {
         String reminderText = "";
         boolean reminderDaily;
         String cancelReminder = "";
+        String background = "";
         int tokensIn;
         int tokensOut;
     }
@@ -186,12 +187,17 @@ final class Gemini {
                         .put("repetir", new JSONObject().put("type", "STRING")
                                 .put("enum", new JSONArray().put("nao").put("diario"))))
                 .put("required", new JSONArray().put("quando").put("texto").put("repetir")));
+        JSONArray backs = new JSONArray().put("nenhum");
+        for (String[] b : Backdrop.PRESETS) backs.put(b[0]);
+        backs.put(Backdrop.AUTO);
+        props.put("fundo", new JSONObject().put("type", "STRING").put("enum", backs)
+                .put("description", "Cor de fundo da tela, só se o dono pedir para trocar; senão nenhum."));
         props.put("cancelar_lembrete", new JSONObject().put("type", "STRING")
                 .put("description", "Palavra-chave do lembrete que o dono pediu para cancelar."));
         JSONArray required = new JSONArray().put("ouvi").put("resposta").put("humor").put("lembrar").put("fim")
                 .put("truque");
         JSONArray order = new JSONArray().put("ouvi").put("resposta").put("humor").put("lembrar").put("fim")
-                .put("truque").put("lembrete").put("cancelar_lembrete");
+                .put("truque").put("lembrete").put("cancelar_lembrete").put("fundo");
         return new JSONObject()
                 .put("type", "OBJECT")
                 .put("properties", props)
@@ -245,6 +251,8 @@ final class Gemini {
                 r.reminderDaily = "diario".equals(Text.fold(rem.optString("repetir", "")));
             }
             r.cancelReminder = j.optString("cancelar_lembrete", "").trim();
+            String back = j.optString("fundo", "").trim();
+            r.background = "nenhum".equals(Text.fold(back)) ? "" : back;
         } else {
             r.say = raw;
         }

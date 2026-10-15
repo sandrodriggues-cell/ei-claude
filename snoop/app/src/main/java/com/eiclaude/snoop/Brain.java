@@ -186,6 +186,8 @@ final class Brain {
                 .append("se for todo dia, senão nao; confirme o horário na resposta. ")
                 .append("\"cancelar_lembrete\" é uma palavra-chave do lembrete que ele pedir para cancelar. ")
                 .append("Se não houver lembrete para marcar ou cancelar, não preencha esses dois campos. ")
+                .append("\"fundo\" só se ele pedir para trocar a cor do fundo da tela: escolha a opção mais parecida entre ")
+                .append(Backdrop.voiceOptions()).append("; senão nenhum. ")
                 .append("Se o áudio vier sem fala ou incompreensível, deixe \"ouvi\" vazio e peça de um jeito fofo para ele repetir.");
         return b.toString();
     }

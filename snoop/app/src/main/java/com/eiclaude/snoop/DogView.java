@@ -121,6 +121,7 @@ public final class DogView extends View {
     private long wiggleStart = -1;
     private long pokeAt = -10000;
     private boolean visible;
+    private int ink = 0xFFF5F1EC;
 
     private PetListener petListener;
     private String trick;
@@ -156,6 +157,13 @@ public final class DogView extends View {
         setContentDescription("Snoop, seu cachorro virtual. Toque para conversar, deslize o dedo para fazer carinho.");
         slop = ViewConfiguration.get(c).getScaledTouchSlop();
         for (int i = 0; i < heartAt.length; i++) heartAt[i] = -10000;
+    }
+
+    /** Cor dos textos e pontinhos desenhados em volta dele (muda com o fundo). */
+    void setInk(int color) {
+        ink = color;
+        zText.setColor(color);
+        invalidate();
     }
 
     void setPetListener(PetListener l) {
@@ -731,7 +739,7 @@ public final class DogView extends View {
         float[][] dots = {{50, -92, 3.2f}, {63, -99, 4.2f}, {77, -106, 5.2f}};
         for (int i = 0; i < dots.length; i++) {
             float a = 0.35f + 0.65f * Math.max(0f, (float) Math.sin(t * 4 - i * 0.9));
-            fill.setColor(0xFFF5F1EC);
+            fill.setColor(ink);
             fill.setAlpha(Math.round(255 * a));
             c.drawCircle(dots[i][0], dots[i][1], dots[i][2], fill);
         }
