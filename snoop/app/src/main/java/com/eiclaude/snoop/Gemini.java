@@ -177,27 +177,26 @@ final class Gemini {
         for (String t : DogView.TRICKS) tricks.put(t);
         props.put("truque", new JSONObject().put("type", "STRING").put("enum", tricks)
                 .put("description", "Truque que o Snoop faz agora (se o dono pedir ou se combinar), ou nenhum."));
-        props.put("lembrete", new JSONObject().put("type", "OBJECT")
-                .put("description", "Só quando o dono pedir para ser lembrado de algo num horário.")
-                .put("properties", new JSONObject()
-                        .put("quando", new JSONObject().put("type", "STRING")
-                                .put("description", "Data e hora local no formato AAAA-MM-DD HH:MM."))
-                        .put("texto", new JSONObject().put("type", "STRING")
-                                .put("description", "O que lembrar, curto."))
-                        .put("repetir", new JSONObject().put("type", "STRING")
-                                .put("enum", new JSONArray().put("nao").put("diario"))))
-                .put("required", new JSONArray().put("quando").put("texto").put("repetir")));
+        props.put("lembrete_quando", new JSONObject().put("type", "STRING")
+                .put("description", "Se o dono pediu para ser lembrado de algo: data e hora local no formato "
+                        + "AAAA-MM-DD HH:MM, calculada a partir de agora. Senão, vazio."));
+        props.put("lembrete_texto", new JSONObject().put("type", "STRING")
+                .put("description", "O que lembrar, curto (ex.: tomar água). Vazio se não houver lembrete."));
+        props.put("lembrete_repetir", new JSONObject().put("type", "STRING")
+                .put("enum", new JSONArray().put("nao").put("diario"))
+                .put("description", "diario se o lembrete for todo dia, senão nao."));
         JSONArray backs = new JSONArray().put("nenhum");
         for (String[] b : Backdrop.PRESETS) backs.put(b[0]);
         backs.put(Backdrop.AUTO);
         props.put("fundo", new JSONObject().put("type", "STRING").put("enum", backs)
                 .put("description", "Cor de fundo da tela, só se o dono pedir para trocar; senão nenhum."));
         props.put("cancelar_lembrete", new JSONObject().put("type", "STRING")
-                .put("description", "Palavra-chave do lembrete que o dono pediu para cancelar."));
-        JSONArray required = new JSONArray().put("ouvi").put("resposta").put("humor").put("lembrar").put("fim")
-                .put("truque");
-        JSONArray order = new JSONArray().put("ouvi").put("resposta").put("humor").put("lembrar").put("fim")
-                .put("truque").put("lembrete").put("cancelar_lembrete").put("fundo");
+                .put("description", "Palavra-chave do lembrete que o dono pediu para cancelar, ou vazio."));
+        // Lembrete antes da resposta: o modelo decide o horário e depois confirma falando.
+        JSONArray order = new JSONArray().put("ouvi").put("lembrete_quando").put("lembrete_texto")
+                .put("lembrete_repetir").put("cancelar_lembrete").put("resposta").put("humor").put("lembrar")
+                .put("fim").put("truque").put("fundo");
+        JSONArray required = order;
         return new JSONObject()
                 .put("type", "OBJECT")
                 .put("properties", props)
@@ -244,8 +243,11 @@ final class Gemini {
             r.end = j.optBoolean("fim", false);
             String trick = j.optString("truque", "").trim();
             r.trick = "nenhum".equals(Text.fold(trick)) ? "" : trick;
+            r.reminderWhen = j.optString("lembrete_quando", "").trim();
+            r.reminderText = j.optString("lembrete_texto", "").trim();
+            r.reminderDaily = "diario".equals(Text.fold(j.optString("lembrete_repetir", "")));
             JSONObject rem = j.optJSONObject("lembrete");
-            if (rem != null) {
+            if (rem != null && r.reminderWhen.isEmpty()) {
                 r.reminderWhen = rem.optString("quando", "").trim();
                 r.reminderText = rem.optString("texto", "").trim();
                 r.reminderDaily = "diario".equals(Text.fold(rem.optString("repetir", "")));

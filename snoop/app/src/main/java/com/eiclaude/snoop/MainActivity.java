@@ -30,6 +30,10 @@ public class MainActivity extends Activity implements Speaker.Listener {
 
     static final String EXTRA_SAY = "fala";
     static final String EXTRA_MOOD = "humor";
+    static final String EXTRA_WAKE = "acordar";
+
+    /** Tela do Snoop aberta agora (para lembretes chegarem direto nela). */
+    private static java.lang.ref.WeakReference<MainActivity> open = new java.lang.ref.WeakReference<>(null);
 
     private enum State { IDLE, LISTENING, THINKING, SPEAKING }
 
@@ -110,7 +114,39 @@ public class MainActivity extends Activity implements Speaker.Listener {
         Pulse.schedule(this);
         Health.registerIfNeeded(this);
         readExtras(getIntent());
+        wakeIfAsked(getIntent());
         render();
+    }
+
+    /** Lembrete com a tela apagada: acende e aparece por cima do bloqueio. */
+    private void wakeIfAsked(Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(EXTRA_WAKE, false)) return;
+        try {
+            setShowWhenLocked(true);
+            setTurnScreenOn(true);
+        } catch (Throwable ignored) {
+            // versão sem esse recurso
+        }
+    }
+
+    /** Chamado na thread principal quando um lembrete toca. Devolve true se o Snoop falou na tela. */
+    static boolean deliverIfOpen(String text) {
+        MainActivity a = open.get();
+        if (a == null || !a.resumed || a.isFinishing()) return false;
+        if (a.state == State.LISTENING) a.recorder.cancel();
+        if (a.state != State.IDLE) {
+            a.requestGen++;
+            a.stopSpeaking();
+            a.setState(State.IDLE);
+        }
+        Ui.buzz(a, 300);
+        a.setMood(DogView.Mood.ANIMADO);
+        a.dog.playTrick("latir");
+        a.heardText.setText("Lembrete");
+        a.replyText.setTextColor(a.look.ink);
+        a.replyText.setText(text);
+        a.speak(text, true);
+        return true;
     }
 
     @Override
@@ -118,6 +154,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
         super.onNewIntent(intent);
         setIntent(intent);
         readExtras(intent);
+        wakeIfAsked(intent);
         if (state == State.IDLE) autoListen = true; // abriu de novo: quer conversar
     }
 
@@ -125,6 +162,7 @@ public class MainActivity extends Activity implements Speaker.Listener {
     protected void onResume() {
         super.onResume();
         resumed = true;
+        open = new java.lang.ref.WeakReference<>(this);
         Prefs.putLong(this, "aberto_em", System.currentTimeMillis());
         scroll.requestFocus();
         applyBackdrop();
@@ -537,9 +575,19 @@ public class MainActivity extends Activity implements Speaker.Listener {
         if (!usedModel.equals(Prefs.model(this))) Prefs.setModel(this, usedModel);
         Prefs.countRequest(this, r.tokensIn, r.tokensOut);
         String say = r.say;
+        String marked = "";
+        String asked = Text.fold(r.heard);
         if (!r.reminderWhen.isEmpty() && !r.reminderText.isEmpty()) {
             Reminders.Item it = Reminders.add(this, Reminders.parseWhen(r.reminderWhen), r.reminderText, r.reminderDaily);
-            if (it == null) say += " Hmm, não consegui marcar esse lembrete. Fala o dia e o horário de novo?";
+            if (it == null) {
+                say += " Hmm, não consegui marcar esse lembrete. Fala o dia e o horário de novo?";
+            } else {
+                marked = "Lembrete marcado: " + Reminders.label(it);
+                Ui.buzz(this, 60);
+            }
+        } else if ((asked.contains("me lembr") || asked.contains("me avis")) && r.cancelReminder.isEmpty()) {
+            // Pediu um lembrete, mas o horário não veio: melhor avisar do que fingir que marcou.
+            say += " Opa, não consegui marcar esse lembrete. Fala de novo com o dia e o horário?";
         }
         if (!r.cancelReminder.isEmpty() && Reminders.cancelMatching(this, r.cancelReminder) == 0) {
             say += " Não achei esse lembrete na minha lista.";
@@ -549,7 +597,9 @@ public class MainActivity extends Activity implements Speaker.Listener {
         if (!r.remember.isEmpty()) Brain.addNote(this, r.remember);
         Pet.addJoy(this, 6);
 
-        heardText.setText(r.heard.isEmpty() ? "" : "Você: " + r.heard);
+        String heardLine = r.heard.isEmpty() ? "" : "Você: " + r.heard;
+        if (!marked.isEmpty()) heardLine = heardLine.isEmpty() ? marked : heardLine + "\n" + marked;
+        heardText.setText(heardLine);
         replyText.setTextColor(look.ink);
         replyText.setText(say);
         setMood(DogView.Mood.of(r.mood));

@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -179,8 +181,34 @@ final class Reminders {
         }
         if (found == null) return;
         if (found.daily) schedule(c, found);
-        String text = Phrases.reminder(c, found.text);
-        if (Notifier.showReminder(c, (int) (found.id % 100000) + 1000, text)) Brain.add(c, "model", text);
+        final String text = Phrases.reminder(c, found.text);
+        Brain.add(c, "model", text);
+        // Com o Snoop aberto na tela, ele mesmo fala; senão, aviso que acende a tela e abre o Snoop.
+        final java.util.concurrent.atomic.AtomicBoolean spoken = new java.util.concurrent.atomic.AtomicBoolean(false);
+        final java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(1);
+        new Handler(Looper.getMainLooper()).post(() -> {
+            spoken.set(MainActivity.deliverIfOpen(text));
+            done.countDown();
+        });
+        try {
+            done.await(2, java.util.concurrent.TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+            // segue para o aviso
+        }
+        if (!spoken.get()) Notifier.showReminder(c, (int) (found.id % 100000) + 1000, text);
+    }
+
+    /** Marca um lembrete de teste para daqui a 1 minuto. */
+    static Item test(Context c) {
+        return add(c, System.currentTimeMillis() + 60_000L, "teste do Snoop (o lembrete funciona!)", false);
+    }
+
+    /** Diagnóstico para os ajustes. */
+    static String status(Context c) {
+        AlarmManager am = c.getSystemService(AlarmManager.class);
+        boolean exact = am != null && (Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms());
+        return (exact ? "alarme exato permitido" : "alarme exato bloqueado (pode atrasar)")
+                + " · " + (Notifier.fullScreenAllowed(c) ? "abre a tela" : "só notificação");
     }
 
     /** Lembretes marcados, para o Gemini saber (e responder "quais lembretes eu tenho?"). */
@@ -229,10 +257,17 @@ final class Reminders {
             if (Build.VERSION.SDK_INT >= 31 && !am.canScheduleExactAlarms()) {
                 am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it.at, pi);
             } else {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it.at, pi);
+                // Como um despertador: o jeito mais confiável de tocar na hora, mesmo com o relógio em repouso.
+                PendingIntent show = PendingIntent.getActivity(c, 2, new Intent(c, MainActivity.class),
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                am.setAlarmClock(new AlarmManager.AlarmClockInfo(it.at, show), pi);
             }
         } catch (Throwable t) {
-            am.set(AlarmManager.RTC_WAKEUP, it.at, pi);
+            try {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it.at, pi);
+            } catch (Throwable t2) {
+                am.set(AlarmManager.RTC_WAKEUP, it.at, pi);
+            }
         }
     }
 

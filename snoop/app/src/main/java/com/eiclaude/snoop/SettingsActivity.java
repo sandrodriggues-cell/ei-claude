@@ -212,6 +212,12 @@ public class SettingsActivity extends Activity implements SetupServer.Listener {
         remindersText = Ui.text(this, 12, Ui.SOFT, false);
         remindersText.setVisibility(View.GONE);
         col.addView(remindersText, Ui.wide(this, 6));
+        col.addView(Ui.chip(this, "Testar lembrete (1 minuto)", v -> {
+            Reminders.Item it = Reminders.test(this);
+            Toast.makeText(this, it != null ? "Em 1 minuto o Snoop te chama. Pode apagar a tela."
+                    : "Não consegui marcar o teste", Toast.LENGTH_LONG).show();
+            refreshAll();
+        }));
         col.addView(Ui.chip(this, "Apagar lembretes", v -> {
             Reminders.clear(this);
             Toast.makeText(this, "Lembretes apagados", Toast.LENGTH_SHORT).show();
@@ -352,6 +358,8 @@ public class SettingsActivity extends Activity implements SetupServer.Listener {
                 + "\nPassos: " + (steps.isEmpty() ? "aguardando" : steps)
                 + (idleNow >= 0 ? " · parado há " + idleNow + " min" : " · sem dados ainda")
                 + "\nVoz do relógio: " + Prefs.ttsStatus(this)
+                + "\nLembretes: " + Reminders.status(this)
+                + (Notifier.allowed(this) ? "" : " · notificações desligadas!")
                 + "\nVersão: " + version);
         refreshAddress();
     }

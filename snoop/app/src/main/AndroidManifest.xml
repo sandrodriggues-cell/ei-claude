@@ -16,6 +16,8 @@
     <!-- Lembretes na hora certa (alarme exato). -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
+    <!-- Lembrete com a tela apagada: acende e abre o Snoop. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <!-- Leitor de texto do relógio (voz do Snoop). -->
     <queries>

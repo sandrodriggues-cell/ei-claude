@@ -60,15 +60,25 @@ final class Notifier {
 
     /** Lembrete pedido por voz (canal próprio, vibração mais forte). */
     static boolean showReminder(Context c, int id, String text) {
-        return post(c, CHANNEL_REMINDERS, id, text, "animado");
+        return post(c, CHANNEL_REMINDERS, id, text, "animado", true);
+    }
+
+    static boolean fullScreenAllowed(Context c) {
+        if (Build.VERSION.SDK_INT < 34) return true;
+        NotificationManager nm = c.getSystemService(NotificationManager.class);
+        try {
+            return nm != null && nm.canUseFullScreenIntent();
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /** Mostra o aviso; ao tocar, o Snoop fala a frase e já ouve a sua resposta. */
     static boolean show(Context c, int id, String text, String mood) {
-        return post(c, CHANNEL, id, text, mood);
+        return post(c, CHANNEL, id, text, mood, false);
     }
 
-    private static boolean post(Context c, String channel, int id, String text, String mood) {
+    private static boolean post(Context c, String channel, int id, String text, String mood, boolean wake) {
         ensureChannel(c);
         if (!allowed(c)) return false;
         Intent open = new Intent(c, MainActivity.class)
@@ -90,6 +100,12 @@ final class Notifier {
                         Icon.createWithResource(c, R.drawable.ic_paw), "Conversar", pi).build());
         Bitmap face = face(c);
         if (face != null) b.setLargeIcon(face);
+        if (wake && fullScreenAllowed(c)) {
+            Intent wakeUp = new Intent(open).putExtra(MainActivity.EXTRA_WAKE, true);
+            b.setFullScreenIntent(PendingIntent.getActivity(c, id + 50000, wakeUp,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE), true);
+            b.setCategory(Notification.CATEGORY_ALARM);
+        }
         NotificationManager nm = c.getSystemService(NotificationManager.class);
         if (nm == null) return false;
         nm.notify(id, b.build());
