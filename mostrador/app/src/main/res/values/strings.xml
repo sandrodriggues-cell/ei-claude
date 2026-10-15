@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Snoop</string>
+    <string name="cfg_fundo">Fundo</string>
+    <string name="cfg_soneca">Hora do cochilo</string>
+    <string name="fundo_noite">Noite</string>
+    <string name="fundo_preto">Preto</string>
+    <string name="fundo_parque">Parque</string>
+    <string name="fundo_por_do_sol">Pôr do sol</string>
+    <string name="fundo_lavanda">Lavanda</string>
+    <string name="fundo_oceano">Oceano</string>
+    <string name="fundo_vinho">Vinho</string>
+    <string name="fundo_ceu">Céu</string>
+    <string name="fundo_areia">Areia</string>
+    <string name="soneca_dia">Das 8h às 14h</string>
+    <string name="soneca_noite">Das 23h às 6h</string>
+    <string name="soneca_nunca">Nunca</string>
+</resources>

@@ -118,3 +118,16 @@ O APK é o `Snoop-vN.apk` mais recente em **Releases**. Instale do mesmo jeito q
 - **Privacidade:** a conversa (e as lembranças que vão junto) segue para o Google. No plano grátis, o Google usa esse conteúdo para melhorar os produtos dele e revisores humanos podem ler trechos (desligados da sua conta). O próprio Google pede para não mandar informações sensíveis ou pessoais no plano grátis.
 - **Sem internet em tempo real:** clima, notícias e placares ficam de fora; ele avisa quando não sabe.
 - **Passos:** vêm do Health Services do Wear OS. Em **Ajustes**, o diagnóstico mostra se está ligado e há quanto tempo você está parado.
+
+### Mostrador do Snoop (tela principal do relógio)
+
+Na pasta `mostrador/` fica um mostrador (watch face) com o Snoop no centro. É um APK separado, feito no Watch Face Format do Google, que o Wear OS exige para mostradores desde janeiro de 2026.
+
+- **Hora, data, passos e bateria**, com um anel em volta da tela que enche conforme a sua meta de passos do dia.
+- **O Snoop muda sozinho:** fica feliz quando você bate a meta de passos, desanimado se você andou pouco no fim do dia e dorme na hora do cochilo (ajustável: 8h–14h, 23h–6h ou nunca). Com o pulso abaixado (tela sempre ligada), ele aparece cochilando, em cinza.
+- **Toque no Snoop** para abrir o app e conversar. Toque no ícone da bateria para ver a bateria.
+- **Cores:** as mesmas do app (Noite, Preto, Parque, Pôr do sol, Lavanda, Oceano, Vinho, Céu, Areia).
+
+**Instalar:** baixe o `SnoopMostrador-vN.apk` mais recente em **Releases** e instale pelo **Wear Installer 2**, como os outros. Depois, no relógio, toque e segure a tela, deslize até o fim e toque em **+ (Adicionar mostrador)**; o **Snoop** aparece na lista de baixados. Para trocar cor e hora do cochilo: toque e segure o mostrador › **Personalizar**.
+
+O mostrador é gerado por `mostrador/gerar.py` (desenhos, prévia e `res/raw/watchface.xml`); para mudar algo, edite o script e rode de novo.

@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+}
+
+def buildNumber = (System.getenv('BUILD_NUMBER') ?: '1') as Integer
+
+android {
+    namespace 'com.eiclaude.snoop.mostrador'
+    compileSdk 36
+
+    defaultConfig {
+        // Pacote próprio: o mostrador precisa ser separado do app do Snoop.
+        applicationId 'com.eiclaude.snoop.mostrador'
+        // Watch Face Format versão 1 = Wear OS 4 (API 33) ou mais novo.
+        minSdk 33
+        targetSdk 34
+        versionCode buildNumber
+        versionName "mostrador-${buildNumber}"
+    }
+
+    signingConfigs {
+        fixa {
+            storeFile file('../../app/eiclaude.keystore')
+            storeType 'pkcs12'
+            storePassword 'eiclaude'
+            keyAlias 'eiclaude'
+            keyPassword 'eiclaude'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.fixa
+        }
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.fixa
+        }
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}

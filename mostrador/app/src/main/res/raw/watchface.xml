@@ -1,0 +1,670 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gerado por mostrador/gerar.py: edite lá e gere de novo. -->
+<WatchFace width="450" height="450" clipShape="CIRCLE">
+  <Metadata key="CLOCK_TYPE" value="DIGITAL"/>
+  <Metadata key="PREVIEW_TIME" value="10:08:32"/>
+  <UserConfigurations>
+    <ListConfiguration id="fundo" displayName="@string/cfg_fundo" defaultValue="noite">
+      <ListOption id="noite" displayName="@string/fundo_noite"/>
+      <ListOption id="preto" displayName="@string/fundo_preto"/>
+      <ListOption id="parque" displayName="@string/fundo_parque"/>
+      <ListOption id="por_do_sol" displayName="@string/fundo_por_do_sol"/>
+      <ListOption id="lavanda" displayName="@string/fundo_lavanda"/>
+      <ListOption id="oceano" displayName="@string/fundo_oceano"/>
+      <ListOption id="vinho" displayName="@string/fundo_vinho"/>
+      <ListOption id="ceu" displayName="@string/fundo_ceu"/>
+      <ListOption id="areia" displayName="@string/fundo_areia"/>
+    </ListConfiguration>
+    <ListConfiguration id="soneca" displayName="@string/cfg_soneca" defaultValue="dia">
+      <ListOption id="dia" displayName="@string/soneca_dia"/>
+      <ListOption id="noite" displayName="@string/soneca_noite"/>
+      <ListOption id="nunca" displayName="@string/soneca_nunca"/>
+    </ListConfiguration>
+  </UserConfigurations>
+  <Scene backgroundColor="#FF000000">
+
+    <!-- Cores escolhidas: fundo, anel de passos, hora, data, passos e bateria (somem no modo sempre ligado). -->
+    <Group name="tema" x="0" y="0" width="450" height="450">
+      <ListConfiguration id="fundo">
+        <ListOption id="noite">
+          <Group name="tema_noite" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_noite" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FF070B16">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FF1B2A4A #FF070B16" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_noite" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFE9A862" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FFF5F1EC"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_noite" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FFB8C2D6">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_noite" x="111" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_noite" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_noite" x="243" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_noite" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_noite" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FFB8C2D6">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+        <ListOption id="preto">
+          <Group name="tema_preto" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_preto" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FF000000">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FF000000 #FF000000" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_preto" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFE9A862" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FFF5F1EC"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_preto" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FFA79F96">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_preto" x="111" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_preto" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_preto" x="243" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_preto" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_preto" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FFA79F96">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+        <ListOption id="parque">
+          <Group name="tema_parque" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_parque" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FF0A160D">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FF24452C #FF0A160D" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_parque" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFE9A862" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FFF5F1EC"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_parque" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FFB5C9B4">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_parque" x="111" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_parque" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_parque" x="243" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_parque" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_parque" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FFB5C9B4">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+        <ListOption id="por_do_sol">
+          <Group name="tema_por_do_sol" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_por_do_sol" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FF160806">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FF5A2A1A #FF160806" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_por_do_sol" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFF2C14E" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FFF5F1EC"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_por_do_sol" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FFD9B8A6">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_por_do_sol" x="111" y="392" width="24" height="24" tintColor="#FFF2C14E">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_por_do_sol" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_por_do_sol" x="243" y="392" width="24" height="24" tintColor="#FFF2C14E">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_por_do_sol" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_por_do_sol" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FFD9B8A6">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+        <ListOption id="lavanda">
+          <Group name="tema_lavanda" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_lavanda" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FF120C1D">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FF3A2C55 #FF120C1D" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_lavanda" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFE9A862" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FFF5F1EC"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_lavanda" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FFC4B8D9">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_lavanda" x="111" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_lavanda" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_lavanda" x="243" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_lavanda" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_lavanda" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FFC4B8D9">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+        <ListOption id="oceano">
+          <Group name="tema_oceano" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_oceano" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FF041418">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FF0F4552 #FF041418" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_oceano" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFE9A862" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FFF5F1EC"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_oceano" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FFA9CDD4">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_oceano" x="111" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_oceano" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_oceano" x="243" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_oceano" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_oceano" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FFA9CDD4">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+        <ListOption id="vinho">
+          <Group name="tema_vinho" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_vinho" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FF14060C">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FF4A1A2C #FF14060C" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_vinho" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFE9A862" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FFF5F1EC"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_vinho" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FFD6AEBC">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_vinho" x="111" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_vinho" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_vinho" x="243" y="392" width="24" height="24" tintColor="#FFE9A862">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_vinho" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FFF5F1EC">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_vinho" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FFD6AEBC">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+        <ListOption id="ceu">
+          <Group name="tema_ceu" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_ceu" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FF8FC1EE">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FFD6ECFF #FF8FC1EE" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_ceu" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFB65A14" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FF1E2A3A"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_ceu" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FF3D5168">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_ceu" x="111" y="392" width="24" height="24" tintColor="#FFB65A14">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_ceu" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FF1E2A3A">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_ceu" x="243" y="392" width="24" height="24" tintColor="#FFB65A14">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_ceu" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FF1E2A3A">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_ceu" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FF3D5168">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+        <ListOption id="areia">
+          <Group name="tema_areia" x="0" y="0" width="450" height="450">
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+            <PartDraw name="fundo_areia" x="0" y="0" width="450" height="450">
+              <Rectangle x="0" y="0" width="450" height="450">
+                <Fill color="#FFE0C8A4">
+                  <RadialGradient centerX="225" centerY="215" radius="300" colors="#FFF6EBDA #FFE0C8A4" positions="0 1"/>
+                </Fill>
+              </Rectangle>
+            </PartDraw>
+            <PartDraw name="anel_areia" x="0" y="0" width="450" height="450">
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="360">
+                <Stroke color="#40909090" thickness="6" cap="ROUND"/>
+              </Arc>
+              <Arc centerX="225" centerY="225" width="434" height="434" startAngle="0" endAngle="0">
+                <Transform target="endAngle" value="clamp([STEP_PERCENT], 0, 100) * 3.6"/>
+                <Stroke color="#FFB65A14" thickness="6" cap="ROUND"/>
+              </Arc>
+            </PartDraw>
+            <DigitalClock x="75" y="20" width="300" height="96">
+              <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+                <Font family="SYNC_TO_DEVICE" size="80" weight="SEMI_BOLD" color="#FF2A1C14"/>
+              </TimeText>
+            </DigitalClock>
+            <PartText name="data_areia" x="75" y="108" width="300" height="34">
+              <Text align="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="22" weight="NORMAL" color="#FF5E4A3A">
+                  <Template>%s, %s %s<Parameter expression="[DAY_OF_WEEK_S]"/><Parameter expression="[DAY]"/><Parameter expression="[MONTH_S]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_passos_areia" x="111" y="392" width="24" height="24" tintColor="#FFB65A14">
+              <Image resource="icone_passos"/>
+            </PartImage>
+            <PartText name="passos_areia" x="139" y="384" width="90" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FF2A1C14">
+                  <Template>%s<Parameter expression="[STEP_COUNT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartImage name="icone_bateria_areia" x="243" y="392" width="24" height="24" tintColor="#FFB65A14">
+              <Launch target="BATTERY_STATUS"/>
+              <Image resource="icone_bateria"/>
+            </PartImage>
+            <PartText name="bateria_areia" x="269" y="384" width="48" height="40">
+              <Text align="END">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="MEDIUM" color="#FF2A1C14">
+                  <Template>%s<Parameter expression="[BATTERY_PERCENT]"/></Template>
+                </Font>
+              </Text>
+            </PartText>
+            <PartText name="bateria_pct_areia" x="318" y="384" width="27" height="40">
+              <Text align="START">
+                <Font family="SYNC_TO_DEVICE" size="20" weight="MEDIUM" color="#FF5E4A3A">%</Font>
+              </Text>
+            </PartText>
+          </Group>
+        </ListOption>
+      </ListConfiguration>
+    </Group>
+
+    <!-- Modo sempre ligado: só a hora, fina e clara. -->
+    <DigitalClock x="75" y="20" width="300" height="96" alpha="0">
+      <Variant mode="AMBIENT" target="alpha" value="255"/>
+      <TimeText format="hh:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER" x="0" y="0" width="300" height="96">
+        <Font family="SYNC_TO_DEVICE" size="80" weight="LIGHT" color="#FFE6E6E6"/>
+      </TimeText>
+    </DigitalClock>
+
+    <!-- O Snoop: humor pelos passos e pela hora; tocar nele abre o app para conversar. -->
+    <Group name="snoop" x="85" y="128" width="280" height="280">
+      <Launch target="com.eiclaude.snoop/com.eiclaude.snoop.MainActivity"/>
+      <Variant mode="AMBIENT" target="alpha" value="0"/>
+      <ListConfiguration id="soneca">
+        <ListOption id="dia">
+          <Condition>
+            <Expressions>
+              <Expression name="dormindo"><![CDATA[[HOUR_0_23] >= 8 && 14 > [HOUR_0_23]]]></Expression>
+              <Expression name="feliz"><![CDATA[[STEP_GOAL] > 0 && [STEP_COUNT] >= [STEP_GOAL]]]></Expression>
+              <Expression name="preguica"><![CDATA[[HOUR_0_23] >= 17 && 30 > [STEP_PERCENT]]]></Expression>
+            </Expressions>
+            <Compare expression="dormindo">
+              <PartImage name="snoop_dormindo" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_dormindo"/>
+              </PartImage>
+            </Compare>
+            <Compare expression="feliz">
+              <PartImage name="snoop_feliz" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_feliz"/>
+              </PartImage>
+            </Compare>
+            <Compare expression="preguica">
+              <PartImage name="snoop_preguica" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_preguica"/>
+              </PartImage>
+            </Compare>
+            <Default>
+              <PartImage name="snoop_normal" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_normal"/>
+              </PartImage>
+            </Default>
+          </Condition>
+        </ListOption>
+        <ListOption id="noite">
+          <Condition>
+            <Expressions>
+              <Expression name="dormindo"><![CDATA[[HOUR_0_23] >= 23 || 6 > [HOUR_0_23]]]></Expression>
+              <Expression name="feliz"><![CDATA[[STEP_GOAL] > 0 && [STEP_COUNT] >= [STEP_GOAL]]]></Expression>
+              <Expression name="preguica"><![CDATA[[HOUR_0_23] >= 17 && 30 > [STEP_PERCENT]]]></Expression>
+            </Expressions>
+            <Compare expression="dormindo">
+              <PartImage name="snoop_dormindo" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_dormindo"/>
+              </PartImage>
+            </Compare>
+            <Compare expression="feliz">
+              <PartImage name="snoop_feliz" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_feliz"/>
+              </PartImage>
+            </Compare>
+            <Compare expression="preguica">
+              <PartImage name="snoop_preguica" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_preguica"/>
+              </PartImage>
+            </Compare>
+            <Default>
+              <PartImage name="snoop_normal" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_normal"/>
+              </PartImage>
+            </Default>
+          </Condition>
+        </ListOption>
+        <ListOption id="nunca">
+          <Condition>
+            <Expressions>
+              <Expression name="dormindo"><![CDATA[1 == 0]]></Expression>
+              <Expression name="feliz"><![CDATA[[STEP_GOAL] > 0 && [STEP_COUNT] >= [STEP_GOAL]]]></Expression>
+              <Expression name="preguica"><![CDATA[[HOUR_0_23] >= 17 && 30 > [STEP_PERCENT]]]></Expression>
+            </Expressions>
+            <Compare expression="dormindo">
+              <PartImage name="snoop_dormindo" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_dormindo"/>
+              </PartImage>
+            </Compare>
+            <Compare expression="feliz">
+              <PartImage name="snoop_feliz" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_feliz"/>
+              </PartImage>
+            </Compare>
+            <Compare expression="preguica">
+              <PartImage name="snoop_preguica" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_preguica"/>
+              </PartImage>
+            </Compare>
+            <Default>
+              <PartImage name="snoop_normal" x="0" y="0" width="280" height="280">
+                <Image resource="snoop_normal"/>
+              </PartImage>
+            </Default>
+          </Condition>
+        </ListOption>
+      </ListConfiguration>
+    </Group>
+    <PartImage name="snoop_cochilo" x="85" y="128" width="280" height="280" alpha="0">
+      <Variant mode="AMBIENT" target="alpha" value="255"/>
+      <Image resource="snoop_ambiente"/>
+    </PartImage>
+  </Scene>
+</WatchFace>
