@@ -419,8 +419,10 @@ details.more[open]>summary svg{transform:rotate(180deg)}
 .tab[aria-current="page"] .ti{background:var(--accent-soft)}
 
 /* Botão flutuante e abas */
-.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px),calc(50vw - 364px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:8;height:50px;padding:0 18px 0 14px;border-radius:16px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15px;display:flex;align-items:center;gap:6px;box-shadow:var(--shadow)}
-.fab svg{width:20px;height:20px}
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px),calc(50vw - 364px));bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:8;width:56px;height:56px;padding:0;border-radius:18px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .22s ease,opacity .22s ease}
+.fab svg{width:26px;height:26px;stroke-width:2.2}
+.fab:active{transform:scale(.94)}
+.fab.away{transform:translateY(calc(100% + 110px));opacity:0;pointer-events:none}
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabs-in{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .tab{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 8px;font-size:11px;color:var(--muted);font-weight:500;min-width:0;white-space:nowrap}
@@ -1611,7 +1613,7 @@ function render(){
   if(keep){const n=document.getElementById(keep.id);if(n){n.value=keep.v;n.focus();try{n.setSelectionRange(keep.s,keep.e);}catch(e){}}}
   document.querySelectorAll('#tabs .tab').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
   const fab=$('#fab'),fc={hoje:['task','Novo','Criar evento, tarefa ou hábito'],agenda:['event','Evento','Novo evento'],tarefas:['task','Tarefa','Nova tarefa'],habitos:['habit','Hábito','Novo hábito']}[tab];
-  if(fc){fab.hidden=false;fab.dataset.act='quick';fab.dataset.type=fc[0];fab.innerHTML=ic('plus')+fc[1];fab.setAttribute('aria-label',fc[2]);}else fab.hidden=true;
+  if(fc){fab.hidden=false;fab.dataset.act='quick';fab.dataset.type=fc[0];fab.innerHTML=ic('plus');fab.title=fc[2];fab.setAttribute('aria-label',fc[2]);fab.classList.remove('away');}else fab.hidden=true;
   if(S.scrollAg&&tab==='agenda'&&S.agView==='dia'){
     S.scrollAg=false;const tl=$('#tl');
     if(tl){const hh=tl.getBoundingClientRect().height/24,its=dayItems(S.sel).filter(i=>i.kind==='ev'),m=S.sel===today()?nowMin():(its[0]?its[0].s:480);
@@ -1932,6 +1934,9 @@ Object.assign(ACT,{
 
 /* ---------- início ---------- */
 document.addEventListener('input',e=>{const id=e.target&&e.target.id;if(id==='qText')qUpdate();else if(id==='sInp')renderSearch(e.target.value);});
+/* O botão + some ao rolar para baixo (para não cobrir a lista) e volta ao rolar para cima. */
+let lastY=window.scrollY||0;
+window.addEventListener('scroll',()=>{const y=window.scrollY||0,f=$('#fab');if(f&&!f.hidden){if(y>lastY+8&&y>120)f.classList.add('away');else if(y<lastY-8||y<=120)f.classList.remove('away');}lastY=y;},{passive:true});
 $('#tabs').innerHTML=TABS.map(([k,l])=>`<button type="button" class="tab" data-act="tab" data-tab="${k}"><span class="ti">${ic(k)}</span><span>${l}</span></button>`).join('');
 $('#btnSearch').innerHTML=ic('search');
 $('#btnSettings').innerHTML=ic('sliders');
