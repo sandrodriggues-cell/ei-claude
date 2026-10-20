@@ -1,28 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Mostrador de 24 h: anel dourado (o dia), ponteiro e centro. -->
+<!-- Feito: um F com o traço do meio virando um visto âmbar. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:pathData="M54,32 A22,22 0 1,1 54,76 A22,22 0 1,1 54,32"
-        android:strokeColor="#2E394C"
-        android:strokeWidth="5"
-        android:fillColor="#00000000" />
-    <path
-        android:pathData="M54,32 A22,22 0 1,1 32,54"
-        android:strokeColor="#C9A84C"
-        android:strokeWidth="5"
+        android:pathData="M38.36,73.87L38.36,34.13L66.87,34.13"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="8.64"
         android:strokeLineCap="round"
+        android:strokeLineJoin="round"
         android:fillColor="#00000000" />
     <path
-        android:pathData="M54,54 L63,48.8"
-        android:strokeColor="#EBE6DA"
-        android:strokeWidth="3"
+        android:pathData="M47.35,54.35L54.78,61.78L69.64,46.4"
+        android:strokeColor="#FFF5AD24"
+        android:strokeWidth="8.64"
         android:strokeLineCap="round"
+        android:strokeLineJoin="round"
         android:fillColor="#00000000" />
-    <path
-        android:pathData="M51,54 A3,3 0 1,0 57,54 A3,3 0 1,0 51,54 Z"
-        android:fillColor="#EBE6DA" />
 </vector>

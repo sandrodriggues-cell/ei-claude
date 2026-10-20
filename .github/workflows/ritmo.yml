@@ -1,6 +1,6 @@
-name: Compilar APK do Ritmo
+name: Compilar APK do Feito
 
-# Só roda quando muda algo do Ritmo (pasta ritmo/).
+# Só roda quando muda algo do Feito (pasta ritmo/, nome antigo do app).
 on:
   push:
     branches: [ main ]
@@ -48,7 +48,7 @@ jobs:
           git rm -rf --cached . > /dev/null
           cp "$RUNNER_TEMP/logs/build.log" build.log
           git add build.log
-          git commit -m "Registro do build do Ritmo ${{ github.run_number }}"
+          git commit -m "Registro do build do Feito ${{ github.run_number }}"
           git push -f origin HEAD:logs-ritmo
 
       - name: Publicar o APK
@@ -56,10 +56,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           BUILD_NUMBER: ${{ github.run_number }}
         run: |
-          APK="Ritmo-v${BUILD_NUMBER}.apk"
+          APK="Feito-v${BUILD_NUMBER}.apk"
           cp ritmo/app/build/outputs/apk/release/app-release.apk "$APK"
           ls -l "$APK"
-          gh release create "ritmo-v${BUILD_NUMBER}" "$APK" \
-            --title "Ritmo v${BUILD_NUMBER}" \
-            --notes "Ritmo: agenda, tarefas, hábitos e foco no celular. Baixe o APK no celular e instale (veja o README, seção Ritmo)." \
+          gh release create "feito-v${BUILD_NUMBER}" "$APK" \
+            --title "Feito v${BUILD_NUMBER}" \
+            --notes "Feito: tarefas, calendário, meu dia e hábitos no celular. Baixe o APK no celular e instale por cima da versão anterior (veja o README, seção Feito)." \
             --latest=false

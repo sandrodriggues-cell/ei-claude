@@ -37,13 +37,14 @@ public class AlarmActivity extends Activity {
     static final String EXTRA_SUB = "sub";
     static final String EXTRA_START = "start";
     static final String EXTRA_LEAD = "lead";
+    static final String EXTRA_HEAD = "head";
 
-    private static final int BG = 0xFF0D1320;
-    private static final int LINE = 0xFF283346;
-    private static final int FG = 0xFFEBE6DA;
-    private static final int MUTED = 0xFF919AAB;
-    private static final int GOLD = 0xFFC9A84C;
-    private static final int GOLD_INK = 0xFF17120A;
+    private static final int BG = 0xFF0D1220;
+    private static final int LINE = 0xFF2F3B55;
+    private static final int FG = 0xFFECEFF6;
+    private static final int MUTED = 0xFF9CA6BA;
+    private static final int GOLD = 0xFFF5B83D;
+    private static final int GOLD_INK = 0xFF1D1405;
 
     private static WeakReference<AlarmActivity> current = new WeakReference<>(null);
 
@@ -133,6 +134,7 @@ public class AlarmActivity extends Activity {
         String sub = in.getStringExtra(EXTRA_SUB);
         String start = in.getStringExtra(EXTRA_START);
         int lead = in.getIntExtra(EXTRA_LEAD, 0);
+        String head = in.getStringExtra(EXTRA_HEAD);
         if (TextUtils.isEmpty(start)) start = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
 
         if (pulse != null) pulse.stop();
@@ -146,8 +148,8 @@ public class AlarmActivity extends Activity {
         col.setPadding(dp(28), dp(36), dp(28), dp(28));
         root.addView(col, new FrameLayout.LayoutParams(-1, -1));
 
-        TextView brand = text("RITMO · EVENTO", 12, GOLD, Typeface.create("sans-serif-medium", Typeface.NORMAL));
-        brand.setLetterSpacing(0.22f);
+        TextView brand = text(TextUtils.isEmpty(head) ? "Evento" : head, 14, GOLD, Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        brand.setLetterSpacing(0.04f);
         col.addView(brand, new LinearLayout.LayoutParams(-1, -2));
 
         View top = new View(this);
@@ -160,7 +162,7 @@ public class AlarmActivity extends Activity {
         dial.addView(time, new FrameLayout.LayoutParams(-1, -1));
         col.addView(dial, new LinearLayout.LayoutParams(dp(230), dp(230)));
 
-        TextView when = text(lead > 0 ? "Começa em " + lead + " min" : "Começando agora", 13, GOLD,
+        TextView when = text(!TextUtils.isEmpty(head) ? "Está na hora" : lead > 0 ? "Começa em " + lead + " min" : "Começando agora", 13, GOLD,
                 Typeface.create("sans-serif-medium", Typeface.NORMAL));
         when.setLetterSpacing(0.12f);
         when.setAllCaps(true);
@@ -168,7 +170,7 @@ public class AlarmActivity extends Activity {
         lpWhen.topMargin = dp(26);
         col.addView(when, lpWhen);
 
-        TextView name = text(TextUtils.isEmpty(title) ? "Evento" : title, 31, FG, Typeface.SERIF);
+        TextView name = text(TextUtils.isEmpty(title) ? "Evento" : title, 30, FG, Typeface.create("sans-serif-medium", Typeface.BOLD));
         name.setMaxLines(3);
         name.setEllipsize(TextUtils.TruncateAt.END);
         LinearLayout.LayoutParams lpName = new LinearLayout.LayoutParams(-1, -2);
@@ -195,7 +197,7 @@ public class AlarmActivity extends Activity {
         row.addView(dismiss, new LinearLayout.LayoutParams(0, dp(60), 1f));
         col.addView(row, new LinearLayout.LayoutParams(-1, -2));
 
-        TextView open = text("Abrir o Ritmo", 14, MUTED, null);
+        TextView open = text("Abrir o Feito", 14, MUTED, null);
         open.setPadding(0, dp(16), 0, dp(4));
         open.setClickable(true);
         col.addView(open, new LinearLayout.LayoutParams(-1, -2));
@@ -220,7 +222,7 @@ public class AlarmActivity extends Activity {
         pulse.start();
     }
 
-    /** Anéis dourados pulsando em volta da hora, como numa chamada. */
+    /** Anéis âmbar pulsando em volta da hora, como numa chamada. */
     static class PulseView extends View {
         private final Paint ring = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint disc = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -235,7 +237,7 @@ public class AlarmActivity extends Activity {
             ring.setStrokeWidth(2f * d);
             ring.setColor(GOLD);
             disc.setStyle(Paint.Style.FILL);
-            disc.setColor(Color.argb(38, 201, 168, 76));
+            disc.setColor(Color.argb(38, 245, 184, 61));
             edge.setStyle(Paint.Style.STROKE);
             edge.setStrokeWidth(2.5f * d);
             edge.setColor(GOLD);

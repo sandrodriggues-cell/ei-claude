@@ -10,11 +10,12 @@ android {
 
     defaultConfig {
         // App próprio, separado do Ei Claude: instalar um nunca substitui o outro.
+        // O pacote continua com.eiclaude.ritmo (nome antigo do Feito) para instalar por cima e manter os dados.
         applicationId 'com.eiclaude.ritmo'
         minSdk 26
         targetSdk 34
         versionCode buildNumber
-        versionName "ritmo-${buildNumber}"
+        versionName "feito-${buildNumber}"
     }
 
     signingConfigs {

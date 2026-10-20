@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Alarmes dos eventos da agenda.
+ * Alarmes e lembretes do Feito: eventos da agenda, lembretes de tarefas e de hábitos.
  *
  * A página manda a lista dos próximos avisos (setAll). Aqui fica guardada e
  * só o próximo aviso é agendado no Android, como um despertador. Quando ele
@@ -52,8 +52,8 @@ final class EventAlarms {
         NotificationManager nm = c.getSystemService(NotificationManager.class);
         if (nm == null) return;
         if (nm.getNotificationChannel(CH_ALARM) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_ALARM, "Alarme de eventos", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("Toca como um despertador quando um evento começa");
+            NotificationChannel ch = new NotificationChannel(CH_ALARM, "Alarmes", NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription("Toca como um despertador na hora de um evento ou lembrete");
             Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
             if (sound == null) sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
             ch.setSound(sound, new AudioAttributes.Builder()
@@ -66,14 +66,14 @@ final class EventAlarms {
             nm.createNotificationChannel(ch);
         }
         if (nm.getNotificationChannel(CH_NOTIF) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_NOTIF, "Aviso de eventos", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("Notificação simples quando um evento começa");
+            NotificationChannel ch = new NotificationChannel(CH_NOTIF, "Avisos e lembretes", NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription("Notificação simples na hora de um evento, tarefa ou hábito");
             ch.enableVibration(true);
             ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             nm.createNotificationChannel(ch);
         }
         if (nm.getNotificationChannel(CH_MISSED) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_MISSED, "Eventos sem resposta", NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel ch = new NotificationChannel(CH_MISSED, "Alarmes sem resposta", NotificationManager.IMPORTANCE_LOW);
             ch.setDescription("Fica na barra quando o alarme tocou e ninguém respondeu");
             nm.createNotificationChannel(ch);
         }
@@ -247,12 +247,15 @@ final class EventAlarms {
                 .putExtra(AlarmActivity.EXTRA_SUB, o.optString("s"))
                 .putExtra(AlarmActivity.EXTRA_START, o.optString("start"))
                 .putExtra(AlarmActivity.EXTRA_LEAD, o.optInt("lead", 0))
+                .putExtra(AlarmActivity.EXTRA_HEAD, o.optString("h"))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
     }
 
     private static String headline(JSONObject o) {
         int lead = o.optInt("lead", 0);
         String start = o.optString("start");
+        String head = o.optString("h");
+        if (head.length() > 0) return start.length() > 0 ? head + ", " + start : head;
         if (lead > 0 && start.length() > 0) return "Começa às " + start + " (em " + lead + " min)";
         return start.length() > 0 ? "Começando agora · " + start : "Começando agora";
     }
@@ -271,7 +274,7 @@ final class EventAlarms {
         if (!"alarm".equals(o.optString("m"))) {
             Notification n = new Notification.Builder(c, CH_NOTIF)
                     .setSmallIcon(R.drawable.ic_stat)
-                    .setColor(0xFFC9A84C)
+                    .setColor(0xFFF2A417)
                     .setContentTitle(title)
                     .setContentText(headline(o))
                     .setStyle(new Notification.BigTextStyle().bigText(text))
@@ -288,7 +291,7 @@ final class EventAlarms {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification.Builder b = new Notification.Builder(c, CH_ALARM)
                 .setSmallIcon(R.drawable.ic_stat)
-                .setColor(0xFFC9A84C)
+                .setColor(0xFFF2A417)
                 .setContentTitle(title)
                 .setContentText(headline(o))
                 .setStyle(new Notification.BigTextStyle().bigText(text))
@@ -382,7 +385,7 @@ final class EventAlarms {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification n = new Notification.Builder(c, CH_MISSED)
                 .setSmallIcon(R.drawable.ic_stat)
-                .setColor(0xFFC9A84C)
+                .setColor(0xFFF2A417)
                 .setContentTitle(title)
                 .setContentText(start.length() > 0 ? "Alarme das " + start + " sem resposta" : "Alarme sem resposta")
                 .setAutoCancel(true)
@@ -399,7 +402,7 @@ final class EventAlarms {
             o.put("k", "teste~" + at);
             o.put("at", at);
             o.put("t", "Teste do alarme");
-            o.put("s", "Se você está vendo esta tela, os alarmes do Ritmo estão funcionando.");
+            o.put("s", "Se você está vendo esta tela, os alarmes do Feito estão funcionando.");
             o.put("start", "");
             o.put("lead", 0);
             o.put("m", "alarm");

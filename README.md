@@ -132,25 +132,20 @@ Na pasta `mostrador/` fica um mostrador (watch face) com o Snoop no centro. É u
 
 O mostrador é gerado por `mostrador/gerar.py` (desenhos, prévia e `res/raw/watchface.xml`); para mudar algo, edite o script e rode de novo.
 
-## Ritmo: agenda, tarefas, hábitos e foco (celular)
+## Feito: tarefas, calendário, meu dia e hábitos (celular)
 
-Na pasta `ritmo/` fica o **Ritmo**, um app de gestão pessoal para o celular, separado do Ei Claude: calendário com a escala de turnos, agenda por blocos de horário, tarefas com os principais métodos de gestão do tempo, monitoramento de hábitos e timer de foco.
+Na pasta `ritmo/` (nome antigo do app) fica o **Feito**, um app de organização pessoal para o celular, separado do Ei Claude. A estrutura segue a do Any.do:
 
-- **Hoje:** relógio de 24 h com o turno, quanto falta para acabar, próxima folga e próximo alarme; resumo de tarefas, hábitos e foco; agenda do dia (com o que está acontecendo agora e o que vem a seguir); tarefas de hoje com o sapo do dia; hábitos; tamanho do dia na regra 1-3-5.
-- **Agenda:** três visualizações no topo: **Dia** (blocos de horário, com turno e sono vindos da escala), **Programação** (os próximos 14 dias em lista) e **Mês** (folgas em verde e pontos coloridos das categorias).
-- **Botão + (no meio da barra de baixo):** cria evento, tarefa ou hábito escrevendo do seu jeito, por exemplo "Dentista amanhã 9h #saúde", "Pagar a conta sexta !A" ou "Academia 3x por semana nas folgas". O app entende datas, horários, duração ("por 45 min"), categoria (#) e prioridade (!A); com horário, vira evento sozinho e avisa se bater com o turno ou o sono. **Mais opções** abre o editor completo.
-- **Busca** (lupa, no alto): procura em tarefas, eventos e hábitos, pelo nome ou pelas notas.
-- **Barra de baixo:** Hoje, Agenda, **+**, Tarefas e Hábitos. O **Foco** fica no alto, ao lado da lupa, e mostra o tempo restante enquanto o timer está ativo.
-- **Desfazer:** concluir ou excluir mostra um aviso com **Desfazer** por alguns segundos.
-- **Tarefas:** Lista com Entrada (GTD e regra dos 2 minutos), Eisenhower, Kanban, 1-3-5, Ivy Lee, ABCDE e 80/20.
-- **Hábitos:** sim ou não, ou quantidade (ex.: 8 copos de água); todo dia, em dias da semana ou X vezes por semana; e só nos dias de turno ou só nas folgas. Mostra a sequência, a constância dos últimos 30 dias e um mapa das últimas 18 semanas (toque num dia para marcar ou desmarcar).
-- **Foco:** Pomodoro, 52/17, 90/20, Flowtime e Timebox. O fim de cada etapa avisa por notificação com som, mesmo com a tela apagada.
-- **Alarme dos eventos:** quando um evento começa (ou 5, 10, 15, 30 ou 60 minutos antes), o celular toca como um despertador e mostra uma tela cheia por cima do bloqueio, como uma ligação, com **Adiar 5 min** e **Dispensar**. Cada evento escolhe entre alarme, notificação ou sem aviso; o padrão fica em Ajustes. Sem resposta em 2 minutos, o som para e fica um aviso na barra. Eventos de exemplo não tocam.
+- **Tarefas:** listas com cores e as visões Todas as tarefas, Próximos 7 dias, Entrada e Concluídas, agrupadas em Atrasadas, Hoje, Amanhã, Próximos e Algum dia. Cada tarefa tem data, lembrete, repetição, prioridade, etiquetas, subtarefas e notas, e a lista pode ser vista em linhas ou em quadro. Deslize para a direita para concluir e para a esquerda para excluir.
+- **Calendário:** visões Agenda, Dia, 3 dias e Semana, com o mês completo ao tocar no título. Eventos podem ser de dia inteiro e repetir todo dia, em dias úteis, toda semana, todo mês ou todo ano.
+- **Meu dia:** começa em branco toda manhã. Sugestões trazem o que está atrasado, para hoje ou com prioridade alta, e o Planejar meu dia passa por elas uma a uma. Tem modo foco com Pomodoro, 52/17, 90/20, livre e tempo definido.
+- **Hábitos:** sim ou não, ou quantidade (ex.: 8 copos de água); todo dia, em dias da semana ou X vezes por semana, com lembrete. Mostra a semana em anéis, a sequência, a constância e um calendário de cada hábito.
+- **Criar rápido:** o botão + entende frases como “Pagar a conta amanhã às 18h #Casa !alta”.
 
-**Instalar:** abra **Releases** no celular, baixe o `Ritmo-vN.apk` mais recente e instale (autorize instalar apps desconhecidos, se o Android pedir). Versões novas instalam por cima e mantêm os dados.
+**Instalar:** abra **Releases** no celular, baixe o `Feito-vN.apk` mais recente e instale (autorize instalar apps desconhecidos, se o Android pedir). Versões novas instalam por cima e mantêm os dados, inclusive os da época em que o app se chamava Ritmo.
 
-**Primeiro uso:** em **Ajustes** (ícone de controles, no alto), abra **Escala de turnos**, ative e informe a data de uma folga. Os ajustes ficam em páginas: escala, sono, alarmes, categorias, Pomodoro, backup, guia dos métodos e sobre. Em Ajustes › **Alarmes dos eventos**, toque em **Permitir** em cada item que estiver vermelho (notificações, tela cheia no bloqueio, alarmes exatos e bateria sem restrições) e use **Testar alarme**: bloqueie a tela e, em 5 segundos, o alarme deve tocar. O app abre com alguns exemplos marcados; apague em Ajustes › **Apagar exemplos**. Na primeira vez que o timer roda, o Android pede para mostrar notificações: permita, para o aviso de fim do foco.
+**Primeiro uso:** o app abre com alguns exemplos marcados; apague em Ajustes › Backup e dados › **Apagar exemplos**. Na primeira vez, o Android pede para mostrar notificações: permita, para os lembretes e alarmes.
 
-**Dados:** ficam salvos no próprio celular. Em Ajustes › **Exportar backup** você salva um arquivo `.json`; em **Importar backup** você traz os dados de volta, ou de outra cópia do Ritmo (como a que abre no Claude).
+**Dados:** ficam salvos no próprio celular. Em Ajustes › **Backup e dados** você exporta um arquivo `.json` e importa de volta, ou traz os dados de outra cópia do Feito (como a que abre no Claude).
 
-A tela inteira é a página `ritmo/app/src/main/assets/index.html` (HTML, CSS e JavaScript num arquivo só); o código Android só a exibe e cuida do alarme do timer, da vibração, da tela acesa e dos backups.
+A tela inteira é a página `ritmo/app/src/main/assets/index.html` (HTML, CSS e JavaScript num arquivo só); o código Android só a exibe e cuida dos alarmes, lembretes, vibração, tela acesa e backups.

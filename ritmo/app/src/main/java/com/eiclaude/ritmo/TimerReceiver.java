@@ -81,7 +81,7 @@ public class TimerReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification n = new Notification.Builder(c, CHANNEL)
                 .setSmallIcon(R.drawable.ic_stat)
-                .setContentTitle(title != null && !title.isEmpty() ? title : "Ritmo")
+                .setContentTitle(title != null && !title.isEmpty() ? title : "Feito")
                 .setContentText(text != null ? text : "")
                 .setCategory(Notification.CATEGORY_ALARM)
                 .setAutoCancel(true)

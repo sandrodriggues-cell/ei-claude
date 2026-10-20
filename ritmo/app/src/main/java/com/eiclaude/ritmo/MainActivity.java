@@ -31,7 +31,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Ritmo: a tela inteira é a página assets/index.html (a mesma do Claude).
+ * Feito: a tela inteira é a página assets/index.html (a mesma do Claude).
  * O Android só cuida do que a página não consegue sozinha: alarme do timer
  * com a tela apagada, vibração, tela acesa, cores das barras e backups.
  */
@@ -235,7 +235,7 @@ public class MainActivity extends Activity {
             try {
                 startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkgUri));
             } catch (Exception ignored) {
-                toast("Abra os ajustes do Android › Apps › Ritmo.");
+                toast("Abra os ajustes do Android › Apps › Feito.");
             }
         }
     }
