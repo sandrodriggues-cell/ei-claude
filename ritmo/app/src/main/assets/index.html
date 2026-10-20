@@ -67,7 +67,7 @@ p{margin:0}
 .sync{width:7px;height:7px;border-radius:50%;background:var(--faint);margin-right:8px}
 .sync.on{background:var(--ok)} .sync.local{background:var(--warn)}
 
-main{padding-block:16px 104px;display:flex;flex-direction:column;gap:16px}
+main{padding-block:16px 32px;display:flex;flex-direction:column;gap:16px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}
 .sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
 .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -414,15 +414,24 @@ details.more[open]>summary svg{transform:rotate(180deg)}
 .toast{display:flex;align-items:center;gap:14px}
 .toast-act{background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:13px;padding:5px 10px;border-radius:8px;flex:none}
 
+/* Botão de criar no meio da barra */
+.tab.add{justify-content:center}
+.addb{width:48px;height:48px;border-radius:16px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .12s ease}
+.addb svg{width:26px;height:26px;stroke-width:2.2}
+.tab.add:active .addb{transform:scale(.92)}
+.tab.add:focus-visible{outline:none}
+.tab.add:focus-visible .addb{outline:2px solid var(--fg);outline-offset:2px}
+/* Foco no cabeçalho, com o tempo restante quando o timer está ativo */
+.foco-btn{width:auto;min-width:40px;padding:0 9px;gap:5px;display:inline-flex;align-items:center;justify-content:center}
+.foco-btn[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+.foco-btn .hdr-t{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;color:var(--accent)}
+.foco-btn.run{color:var(--accent)}
+
 /* Abas: indicador do item ativo */
 .tab .ti{display:grid;place-items:center;width:54px;height:28px;border-radius:999px;transition:background .15s}
 .tab[aria-current="page"] .ti{background:var(--accent-soft)}
 
 /* Botão flutuante e abas */
-.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px),calc(50vw - 364px));bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:8;width:56px;height:56px;padding:0;border-radius:18px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .22s ease,opacity .22s ease}
-.fab svg{width:26px;height:26px;stroke-width:2.2}
-.fab:active{transform:scale(.94)}
-.fab.away{transform:translateY(calc(100% + 110px));opacity:0;pointer-events:none}
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabs-in{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .tab{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 8px;font-size:11px;color:var(--muted);font-weight:500;min-width:0;white-space:nowrap}
@@ -471,7 +480,7 @@ textarea.inp{resize:vertical;min-height:70px}
 .mcard p{font-size:13.5px;color:var(--muted);grid-column:1 / -1;max-width:62ch}
 .pick-list{display:flex;flex-direction:column;gap:6px}
 .pick-list .mini{padding:11px 12px;font-size:14px}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(146px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;box-shadow:var(--shadow);width:max-content;max-width:calc(100% - 32px);text-align:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;box-shadow:var(--shadow);width:max-content;max-width:calc(100% - 32px);text-align:center}
 .loading{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
 .loading i{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.25}}
@@ -485,6 +494,7 @@ textarea.inp{resize:vertical;min-height:70px}
     <div class="top-act">
       <span class="sync" id="sync" title="Conectando" hidden></span>
       <button class="icon-btn" type="button" data-act="search" aria-label="Buscar" id="btnSearch"></button>
+      <button class="icon-btn foco-btn" type="button" data-act="tab" data-tab="foco" aria-label="Foco" id="btnFoco"></button>
       <button class="icon-btn" type="button" data-act="settings" aria-label="Ajustes" id="btnSettings"></button>
     </div>
   </div>
@@ -492,7 +502,6 @@ textarea.inp{resize:vertical;min-height:70px}
 <main class="wrap" id="main">
   <div class="card"><div class="loading"><i></i>Abrindo sua agenda…</div></div>
 </main>
-<button class="fab" type="button" id="fab" hidden></button>
 <nav class="tabs" aria-label="Seções">
   <div class="tabs-in" id="tabs"></div>
 </nav>
@@ -797,7 +806,7 @@ function tList(){
   const next=a.filter(t=>!t.inbox&&t.date&&t.date>td).sort((x,y)=>x.date.localeCompare(y.date)||byOrder(x,y));
   const nod=a.filter(t=>!t.inbox&&!t.date).sort(byOrder);
   const done=S.tasks.filter(isDone).sort((x,y)=>(y.doneAt||'').localeCompare(x.doneAt||'')||(y.created||0)-(x.created||0));
-  if(!S.tasks.length)return `<div class="empty">Sua lista está vazia. Capture a primeira tarefa no campo acima ou toque em <b>Tarefa</b>.</div>`;
+  if(!S.tasks.length)return `<div class="empty">Sua lista está vazia. Anote a primeira tarefa no campo acima ou toque em <b>+</b>.</div>`;
   let h=`<section class="card">`;
   h+=group('Entrada · processar',inbox);
   h+=group('Atrasadas',late);h+=group('Hoje',tod,{noDate:1});h+=group('Próximas',next);h+=group('Sem data',nod);
@@ -1469,6 +1478,7 @@ function tickUI(){
   const mt=$('#miniTime');if(mt)mt.textContent=txt;
   const ring=$('#tRing');
   if(ring){let fr;if(flowFocus())fr=(r/60000%25)/25;else{const L=phaseLen();fr=L?1-r/L:0;}ring.style.strokeDashoffset=(CIRC*(1-Math.min(1,Math.max(0,fr)))).toFixed(1);}
+  const ht=$('#hdrTimer');if(ht)ht.textContent=txt;
   const nl=$('#nowLine');if(nl)nl.style.top=`calc(${(nowMin()/60).toFixed(3)} * var(--hh))`;
 }
 
@@ -1611,15 +1621,15 @@ function render(){
   try{html=V();}catch(err){console.error(err);html='<div class="empty">Algo saiu errado ao montar esta tela. Toque em outra aba e volte.</div>';}
   main.innerHTML=html;
   if(keep){const n=document.getElementById(keep.id);if(n){n.value=keep.v;n.focus();try{n.setSelectionRange(keep.s,keep.e);}catch(e){}}}
-  document.querySelectorAll('#tabs .tab').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
-  const fab=$('#fab'),fc={hoje:['task','Novo','Criar evento, tarefa ou hábito'],agenda:['event','Evento','Novo evento'],tarefas:['task','Tarefa','Nova tarefa'],habitos:['habit','Hábito','Novo hábito']}[tab];
-  if(fc){fab.hidden=false;fab.dataset.act='quick';fab.dataset.type=fc[0];fab.innerHTML=ic('plus');fab.title=fc[2];fab.setAttribute('aria-label',fc[2]);fab.classList.remove('away');}else fab.hidden=true;
+  document.querySelectorAll('#tabs .tab[data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
+  const add=$('#tabs .tab.add');if(add){const lbl={agenda:'Novo evento',tarefas:'Nova tarefa',habitos:'Novo hábito'}[tab]||'Criar evento, tarefa ou hábito';add.setAttribute('aria-label',lbl);add.title=lbl;}
+  $('#btnFoco').setAttribute('aria-current',tab==='foco'?'page':'false');
   if(S.scrollAg&&tab==='agenda'&&S.agView==='dia'){
     S.scrollAg=false;const tl=$('#tl');
     if(tl){const hh=tl.getBoundingClientRect().height/24,its=dayItems(S.sel).filter(i=>i.kind==='ev'),m=S.sel===today()?nowMin():(its[0]?its[0].s:480);
       window.scrollTo(0,Math.max(0,tl.getBoundingClientRect().top+window.scrollY+m/60*hh-170));}
   }
-  syncBars();pushAlarms();tickUI();
+  hdrFoco();syncBars();pushAlarms();tickUI();
 }
 
 /* ---------- Hoje ---------- */
@@ -1654,14 +1664,14 @@ function vHoje(){
 
   const nextI=items.findIndex(it=>it.s>n);
   h+=`<section class="card"><div class="sec-h"><h2 class="title">Agenda de hoje</h2><button type="button" class="link" data-act="open-agenda" data-d="${d}">Abrir agenda</button></div>`;
-  if(!items.length)h+='<div class="empty">Nenhum compromisso hoje. Toque em <b>Novo</b> para marcar um horário.</div>';
+  if(!items.length)h+='<div class="empty">Nenhum compromisso hoje. Toque em <b>+</b> para marcar um horário.</div>';
   else h+=`<div class="ag">${items.map((it,i)=>{const cls=it.e<=n?'past':it.s<=n?'live':'';const col=it.kind==='shift'?'var(--accent)':it.kind==='sleep'?'var(--p-ardosia)':catVar(it.cat);const act=it.kind==='ev'?`data-act="edit-ev" data-id="${esc(it.id)}"`:'data-act="set-escala"';const tag=cls==='live'?'<span class="tag gold">agora</span>':i===nextI?`<span class="tag">em ${dur(it.s-n)}</span>`:'';return `<button type="button" class="ag-row ${cls}" ${act}><span class="ag-time">${hhmm(it.s)}–${hhmm(it.e)}</span><span class="ag-t"><i class="cat-dot" style="--cat:${col}"></i><span class="ag-name">${esc(it.title)}${it.sub?` <span class="muted small">· ${esc(it.sub)}</span>`:''}${it.ex?' <span class="tag ex">exemplo</span>':''}${evBell(it)}</span>${tag}</span></button>`;}).join('')}</div>`;
   h+='</section>';
 
   h+=`<section class="card"><div class="sec-h"><div><div class="eyebrow">${tt.length?`${doneN} de ${tt.length} concluídas`:'Plano do dia'}</div><h2 class="title">Tarefas de hoje</h2></div><button type="button" class="link" data-act="go" data-go="tarefas:lista">Ver todas</button></div>`;
   if(!frog&&open.length)h+=`<button type="button" class="frog-ask" data-act="pick" data-mode="frog"><span><b>Escolha o sapo do dia</b><small>A tarefa mais difícil e importante, feita primeiro</small></span>${ic('right')}</button>`;
   if(open.length)h+=`<div class="list">${open.slice(0,6).map(t=>taskRow(t,{noDate:1})).join('')}</div>${open.length>6?`<button type="button" class="link more-link" data-act="go" data-go="tarefas:lista">Mais ${open.length-6} tarefa${open.length-6>1?'s':''}</button>`:''}`;
-  else h+=`<div class="empty">${tt.length?'Tudo feito por hoje.':'Nenhuma tarefa para hoje. Toque em <b>Novo</b> para adicionar.'}</div>`;
+  else h+=`<div class="empty">${tt.length?'Tudo feito por hoje.':'Nenhuma tarefa para hoje. Toque em <b>+</b> para adicionar.'}</div>`;
   h+='</section>';
 
   h+=hojeHabits();
@@ -1903,7 +1913,7 @@ Object.assign(ACT,{
   agv(el){S.agView=el.dataset.v;saveView();if(S.agView==='dia')S.scrollAg=true;if(S.agView==='mes')S.calMonth=S.sel.slice(0,7);render();},
   'open-agenda'(el){S.sel=el.dataset.d||today();S.agView='dia';saveView();closeSheet();S.scrollAg=true;switchTab('agenda');},
   'pick-day'(el){S.sel=el.dataset.d;if(S.agView==='mes')S.calMonth=S.sel.slice(0,7);render();},
-  quick(el){const ty=el.dataset.type||'task';openQuick(ty,S.tab==='hoje'&&ty==='task'?{date:today()}:S.tab==='agenda'?{date:S.sel}:{});},
+  quick(el){const ty=el.dataset.type||{agenda:'event',tarefas:'task',habitos:'habit'}[S.tab]||'task';openQuick(ty,S.tab==='hoje'&&ty==='task'?{date:today()}:S.tab==='agenda'?{date:S.sel}:{});},
   'new-ev'(el){const h=el.dataset.h;if(h==null){openQuick('event',{date:S.sel});return;}openQuick('event',{date:el.dataset.d||S.sel,start:`${pad(+h)}:00`,end:+h>=23?'23:59':`${pad(+h+1)}:00`});},
   'new-task':()=>openQuick('task',S.tab==='hoje'?{date:today()}:{}),
   'new-habit':()=>openQuick('habit'),
@@ -1934,11 +1944,11 @@ Object.assign(ACT,{
 
 /* ---------- início ---------- */
 document.addEventListener('input',e=>{const id=e.target&&e.target.id;if(id==='qText')qUpdate();else if(id==='sInp')renderSearch(e.target.value);});
-/* O botão + some ao rolar para baixo (para não cobrir a lista) e volta ao rolar para cima. */
-let lastY=window.scrollY||0;
-window.addEventListener('scroll',()=>{const y=window.scrollY||0,f=$('#fab');if(f&&!f.hidden){if(y>lastY+8&&y>120)f.classList.add('away');else if(y<lastY-8||y<=120)f.classList.remove('away');}lastY=y;},{passive:true});
-$('#tabs').innerHTML=TABS.map(([k,l])=>`<button type="button" class="tab" data-act="tab" data-tab="${k}"><span class="ti">${ic(k)}</span><span>${l}</span></button>`).join('');
+const NAV=['hoje','agenda','+','tarefas','habitos'],tabBtn=k=>{if(k==='+')return `<button type="button" class="tab add" data-act="quick" aria-label="Criar evento, tarefa ou hábito"><span class="addb">${ic('plus')}</span></button>`;const l=TABS.find(x=>x[0]===k)[1];return `<button type="button" class="tab" data-act="tab" data-tab="${k}"><span class="ti">${ic(k)}</span><span>${l}</span></button>`;};
+$('#tabs').innerHTML=NAV.map(tabBtn).join('');
+function hdrFoco(){const b=$('#btnFoco');if(!b)return;const on=T.running||T.remain!=null||T.flowAcc>0;b.classList.toggle('run',!!T.running);b.innerHTML=ic('foco')+(on?'<span class="hdr-t" id="hdrTimer"></span>':'');b.setAttribute('aria-label',on?'Foco: timer ativo':'Foco');}
 $('#btnSearch').innerHTML=ic('search');
+hdrFoco();
 $('#btnSettings').innerHTML=ic('sliders');
 render();
 Store.init();

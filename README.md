@@ -138,8 +138,9 @@ Na pasta `ritmo/` fica o **Ritmo**, um app de gestão pessoal para o celular, se
 
 - **Hoje:** relógio de 24 h com o turno, quanto falta para acabar, próxima folga e próximo alarme; resumo de tarefas, hábitos e foco; agenda do dia (com o que está acontecendo agora e o que vem a seguir); tarefas de hoje com o sapo do dia; hábitos; tamanho do dia na regra 1-3-5.
 - **Agenda:** três visualizações no topo: **Dia** (blocos de horário, com turno e sono vindos da escala), **Programação** (os próximos 14 dias em lista) e **Mês** (folgas em verde e pontos coloridos das categorias).
-- **Botão +:** cria evento, tarefa ou hábito escrevendo do seu jeito, por exemplo "Dentista amanhã 9h #saúde", "Pagar a conta sexta !A" ou "Academia 3x por semana nas folgas". O app entende datas, horários, duração ("por 45 min"), categoria (#) e prioridade (!A); com horário, vira evento sozinho e avisa se bater com o turno ou o sono. **Mais opções** abre o editor completo.
+- **Botão + (no meio da barra de baixo):** cria evento, tarefa ou hábito escrevendo do seu jeito, por exemplo "Dentista amanhã 9h #saúde", "Pagar a conta sexta !A" ou "Academia 3x por semana nas folgas". O app entende datas, horários, duração ("por 45 min"), categoria (#) e prioridade (!A); com horário, vira evento sozinho e avisa se bater com o turno ou o sono. **Mais opções** abre o editor completo.
 - **Busca** (lupa, no alto): procura em tarefas, eventos e hábitos, pelo nome ou pelas notas.
+- **Barra de baixo:** Hoje, Agenda, **+**, Tarefas e Hábitos. O **Foco** fica no alto, ao lado da lupa, e mostra o tempo restante enquanto o timer está ativo.
 - **Desfazer:** concluir ou excluir mostra um aviso com **Desfazer** por alguns segundos.
 - **Tarefas:** Lista com Entrada (GTD e regra dos 2 minutos), Eisenhower, Kanban, 1-3-5, Ivy Lee, ABCDE e 80/20.
 - **Hábitos:** sim ou não, ou quantidade (ex.: 8 copos de água); todo dia, em dias da semana ou X vezes por semana; e só nos dias de turno ou só nas folgas. Mostra a sequência, a constância dos últimos 30 dias e um mapa das últimas 18 semanas (toque num dia para marcar ou desmarcar).
