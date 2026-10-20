@@ -672,17 +672,15 @@ function vCal(){
   const [y,m]=S.calMonth.split('-').map(Number),first=new Date(y,m-1,1),dim=new Date(y,m,0).getDate();
   const start=addDays(isoOf(first),-first.getDay()),cells=Math.ceil((first.getDay()+dim)/7)*7,td=today();
   let g=DOWS.map(w=>`<div class="dow">${w}</div>`).join('');
-  let nW=0,nO=0,nE=0;const usedCats=new Set();
+  let nW=0,nO=0,nE=0;
   for(let i=0;i<cells;i++){
     const d=addDays(start,i),x=parseISO(d),out=x.getMonth()!==m-1,w=workDay(d),ev=eventsOn(d),tk=S.tasks.filter(t=>t.date===d&&!isDone(t)).length;
-    if(!out){if(w===true)nW++;if(w===false)nO++;nE+=ev.length;ev.forEach(e=>usedCats.add(e.cat));}
+    if(!out){if(w===true)nW++;if(w===false)nO++;nE+=ev.length;}
     const dots=ev.slice(0,3).map(e=>`<i style="background:${catVar(e.cat)}"></i>`).join('')+(tk?'<i style="background:var(--muted)"></i>':'');
     const lab=`${dLong(d)}${w===true?', turno':w===false?', folga':''}${ev.length?`, ${ev.length} evento${ev.length>1?'s':''}`:''}${tk?`, ${tk} tarefa${tk>1?'s':''}`:''}`;
-    g+=`<button type="button" class="day ${out?'out':''} ${w===true?'work':''} ${w===false?'off':''} ${d===td?'today':''} ${d===S.sel?'sel':''}" data-act="pick-day" data-d="${d}" aria-label="${esc(lab)}" aria-pressed="${d===S.sel}"><span class="num">${x.getDate()}</span><span class="sm"></span><span class="dots">${dots}</span></button>`;
+    g+=`<button type="button" class="day ${out?'out':''} ${w===true?'work':''} ${w===false?'off':''} ${d===td?'today':''} ${d===S.sel?'sel':''}" data-act="pick-day" data-d="${d}" aria-label="${esc(lab)}" aria-pressed="${d===S.sel}"><span class="num">${x.getDate()}</span><span class="dots">${dots}</span></button>`;
   }
-  const monthCats=cats().filter(c=>usedCats.has(c.k));
   let h=`<section class="card"><div class="cal-head"><h2 class="title" style="font-size:26px">${MES[m-1][0].toUpperCase()+MES[m-1].slice(1)} <span class="muted mono" style="font-size:16px">${y}</span></h2><div class="cal-nav"><button type="button" class="icon-btn" data-act="cal-prev" aria-label="Mês anterior">${ic('left')}</button><button type="button" class="link" data-act="cal-today" style="padding:0 8px">Hoje</button><button type="button" class="icon-btn" data-act="cal-next" aria-label="Próximo mês">${ic('right')}</button></div></div><div class="cal">${g}</div>`;
-  h+=`<div class="legend"><span><i class="lg" style="height:3px;background:var(--accent)"></i>Turno</span><span><i class="lg" style="background:var(--ok-soft);border:1px solid var(--ok)"></i>Folga</span><span><i class="lg" style="width:6px;height:6px;border-radius:50%;background:var(--muted)"></i>Tarefa</span>${monthCats.map(c=>`<span><i class="lg" style="width:6px;height:6px;border-radius:50%;background:var(--p-${esc(c.c)})"></i>${esc(c.n)}</span>`).join('')}<button type="button" class="link" data-act="cats">Editar categorias</button></div>`;
   if(shiftOn())h+=`<div class="msum"><div><div class="v">${nW}</div><div class="l">Dias de turno</div></div><div><div class="v">${nO}</div><div class="l">Folgas</div></div><div><div class="v">${nE}</div><div class="l">${nE===1?'Evento':'Eventos'}</div></div></div>`;
   h+=`</section>`;
   const d=S.sel,w=workDay(d),its=dayItems(d),tks=S.tasks.filter(t=>t.date===d).sort(byOrder);
@@ -704,7 +702,7 @@ function layout(items){
 }
 function vAgenda(){
   const d=S.sel,x=parseISO(d),ws=addDays(d,-x.getDay()),td=today(),w=workDay(d);
-  let wk='';for(let i=0;i<7;i++){const dd=addDays(ws,i),wd=workDay(dd);wk+=`<button type="button" class="wd ${dd===d?'sel':''} ${wd===false?'off':''} ${wd===true?'work':''}" data-act="pick-day" data-d="${dd}" aria-label="${esc(dLong(dd))}" aria-pressed="${dd===d}">${DOWS[i]}<span class="n">${parseISO(dd).getDate()}</span><span class="sm"></span></button>`;}
+  let wk='';for(let i=0;i<7;i++){const dd=addDays(ws,i),wd=workDay(dd);wk+=`<button type="button" class="wd ${dd===d?'sel':''} ${wd===false?'off':''} ${wd===true?'work':''}" data-act="pick-day" data-d="${dd}" aria-label="${esc(dLong(dd))}" aria-pressed="${dd===d}">${DOWS[i]}<span class="n">${parseISO(dd).getDate()}</span></button>`;}
   let h=`<section class="card" style="padding:12px"><div class="cal-head" style="margin-bottom:8px"><span class="eyebrow">${MES[parseISO(ws).getMonth()]} ${parseISO(ws).getFullYear()}</span><div class="cal-nav"><button type="button" class="icon-btn" data-act="wk-prev" aria-label="Semana anterior">${ic('left')}</button><button type="button" class="link" data-act="wk-today" style="padding:0 8px">Hoje</button><button type="button" class="icon-btn" data-act="wk-next" aria-label="Próxima semana">${ic('right')}</button></div></div><div class="week">${wk}</div></section>`;
   h+=`<div class="day-h"><h2 class="title" style="font-size:25px">${relDay(d)==='Hoje'?'Hoje, ':''}${dLong(d)}</h2>${w===true?'<span class="pill turno">Turno</span>':w===false?'<span class="pill folga">Folga</span>':''}</div>`;
   const items=layout(dayItems(d));
