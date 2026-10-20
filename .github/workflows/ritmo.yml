@@ -1,0 +1,65 @@
+name: Compilar APK do Ritmo
+
+# Só roda quando muda algo do Ritmo (pasta ritmo/).
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ritmo/**'
+      - '.github/workflows/ritmo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v5
+
+      - name: Instalar o Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Instalar o Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '8.13'
+
+      - name: Compilar
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          set -o pipefail
+          gradle -p ritmo assembleRelease --stacktrace --no-daemon 2>&1 | tee build.log
+
+      - name: Guardar o registro do erro no ramo "logs-ritmo"
+        if: failure()
+        run: |
+          mkdir -p "$RUNNER_TEMP/logs"
+          if [ -f build.log ]; then cp build.log "$RUNNER_TEMP/logs/build.log"; else echo "A compilação nem começou; veja a aba Actions." > "$RUNNER_TEMP/logs/build.log"; fi
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout --orphan logs-ritmo-tmp
+          git rm -rf --cached . > /dev/null
+          cp "$RUNNER_TEMP/logs/build.log" build.log
+          git add build.log
+          git commit -m "Registro do build do Ritmo ${{ github.run_number }}"
+          git push -f origin HEAD:logs-ritmo
+
+      - name: Publicar o APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          APK="Ritmo-v${BUILD_NUMBER}.apk"
+          cp ritmo/app/build/outputs/apk/release/app-release.apk "$APK"
+          ls -l "$APK"
+          gh release create "ritmo-v${BUILD_NUMBER}" "$APK" \
+            --title "Ritmo v${BUILD_NUMBER}" \
+            --notes "Ritmo: agenda, tarefas, hábitos e foco no celular. Baixe o APK no celular e instale (veja o README, seção Ritmo)." \
+            --latest=false

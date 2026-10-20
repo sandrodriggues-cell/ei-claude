@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.application'
+}
+
+def buildNumber = (System.getenv('BUILD_NUMBER') ?: '1') as Integer
+
+android {
+    namespace 'com.eiclaude.ritmo'
+    compileSdk 36
+
+    defaultConfig {
+        // App próprio, separado do Ei Claude: instalar um nunca substitui o outro.
+        applicationId 'com.eiclaude.ritmo'
+        minSdk 26
+        targetSdk 34
+        versionCode buildNumber
+        versionName "ritmo-${buildNumber}"
+    }
+
+    signingConfigs {
+        fixa {
+            storeFile file('../../app/eiclaude.keystore')
+            storeType 'pkcs12'
+            storePassword 'eiclaude'
+            keyAlias 'eiclaude'
+            keyPassword 'eiclaude'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.fixa
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.fixa
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    // Serve a página de assets/ num endereço https próprio (guarda os dados com segurança).
+    implementation 'androidx.webkit:webkit:1.11.0'
+}

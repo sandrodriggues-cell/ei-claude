@@ -131,3 +131,21 @@ Na pasta `mostrador/` fica um mostrador (watch face) com o Snoop no centro. É u
 **Instalar:** baixe o `SnoopMostrador-vN.apk` mais recente em **Releases** e instale pelo **Wear Installer 2**, como os outros. Depois, no relógio, toque e segure a tela, deslize até o fim e toque em **+ (Adicionar mostrador)**; o **Snoop** aparece na lista de baixados. Para trocar cor e hora do cochilo: toque e segure o mostrador › **Personalizar**.
 
 O mostrador é gerado por `mostrador/gerar.py` (desenhos, prévia e `res/raw/watchface.xml`); para mudar algo, edite o script e rode de novo.
+
+## Ritmo: agenda, tarefas, hábitos e foco (celular)
+
+Na pasta `ritmo/` fica o **Ritmo**, um app de gestão pessoal para o celular, separado do Ei Claude: calendário com a escala de turnos, agenda por blocos de horário, tarefas com os principais métodos de gestão do tempo, monitoramento de hábitos e timer de foco.
+
+- **Hoje:** relógio de 24 h com o turno, quanto falta para acabar, próxima folga, sapo do dia, hábitos e agenda do dia.
+- **Mês e Agenda:** dias de turno e folga marcados; blocos de horário (time blocking), com turno e sono vindos da escala.
+- **Tarefas:** Lista com Entrada (GTD e regra dos 2 minutos), Eisenhower, Kanban, 1-3-5, Ivy Lee, ABCDE e 80/20.
+- **Hábitos:** sim ou não, ou quantidade (ex.: 8 copos de água); todo dia, em dias da semana ou X vezes por semana; e só nos dias de turno ou só nas folgas. Mostra a sequência, a constância dos últimos 30 dias e um mapa das últimas 18 semanas (toque num dia para marcar ou desmarcar).
+- **Foco:** Pomodoro, 52/17, 90/20, Flowtime e Timebox. O fim de cada etapa avisa por notificação com som, mesmo com a tela apagada.
+
+**Instalar:** abra **Releases** no celular, baixe o `Ritmo-vN.apk` mais recente e instale (autorize instalar apps desconhecidos, se o Android pedir). Versões novas instalam por cima e mantêm os dados.
+
+**Primeiro uso:** em **Ajustes** (ícone de controles, no alto), ative a escala de turnos e informe a data de uma folga. O app abre com alguns exemplos marcados; apague em Ajustes › **Apagar exemplos**. Na primeira vez que o timer roda, o Android pede para mostrar notificações: permita, para o aviso de fim do foco.
+
+**Dados:** ficam salvos no próprio celular. Em Ajustes › **Exportar backup** você salva um arquivo `.json`; em **Importar backup** você traz os dados de volta, ou de outra cópia do Ritmo (como a que abre no Claude).
+
+A tela inteira é a página `ritmo/app/src/main/assets/index.html` (HTML, CSS e JavaScript num arquivo só); o código Android só a exibe e cuida do alarme do timer, da vibração, da tela acesa e dos backups.
