@@ -138,6 +138,7 @@ Na pasta `ritmo/` fica o **Ritmo**, um app de gestão pessoal para o celular, se
 
 - **Hoje:** relógio de 24 h com o turno, quanto falta para acabar, próxima folga, sapo do dia, hábitos e agenda do dia.
 - **Mês e Agenda:** dias de turno e folga marcados; blocos de horário (time blocking), com turno e sono vindos da escala.
+- **Categorias editáveis:** crie, renomeie, mude a cor ou exclua categorias (Ajustes › **Editar categorias**, ou **+ Nova** direto no editor de evento, tarefa ou hábito). Valem para eventos, tarefas e hábitos; ao excluir uma, os itens dela passam para a primeira da lista. A legenda do mês mostra as categorias usadas naquele mês.
 - **Tarefas:** Lista com Entrada (GTD e regra dos 2 minutos), Eisenhower, Kanban, 1-3-5, Ivy Lee, ABCDE e 80/20.
 - **Hábitos:** sim ou não, ou quantidade (ex.: 8 copos de água); todo dia, em dias da semana ou X vezes por semana; e só nos dias de turno ou só nas folgas. Mostra a sequência, a constância dos últimos 30 dias e um mapa das últimas 18 semanas (toque num dia para marcar ou desmarcar).
 - **Foco:** Pomodoro, 52/17, 90/20, Flowtime e Timebox. O fim de cada etapa avisa por notificação com som, mesmo com a tela apagada.
