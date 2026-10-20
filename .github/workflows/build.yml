@@ -11,6 +11,8 @@ on:
       - '.github/workflows/snoop.yml'
       - 'mostrador/**'
       - '.github/workflows/mostrador.yml'
+      - 'ritmo/**'
+      - '.github/workflows/ritmo.yml'
       - 'README.md'
   workflow_dispatch:
 
