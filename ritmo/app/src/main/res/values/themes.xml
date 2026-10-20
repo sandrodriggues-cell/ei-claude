@@ -7,4 +7,12 @@
         <item name="android:navigationBarColor">@color/surface_light</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <!-- Alarme de evento: sempre escuro, como uma tela de ligação. -->
+    <style name="RitmoAlarmTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:navigationBarColor">@color/bg_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>

@@ -8,6 +8,12 @@
     <!-- Aviso do timer na hora certa (alarme exato), mesmo com a tela apagada. -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
+    <!-- Alarme do evento por cima da tela de bloqueio, como uma ligação. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Reagendar os alarmes depois de ligar o celular. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Botão "Bateria sem restrições" nos Ajustes. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:allowBackup="true"
@@ -31,5 +37,32 @@
         <receiver
             android:name=".TimerReceiver"
             android:exported="false" />
+
+        <!-- Tela cheia do alarme de evento. -->
+        <activity
+            android:name=".AlarmActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.eiclaude.ritmo.alarme"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/RitmoAlarmTheme" />
+
+        <receiver
+            android:name=".EventAlarmReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
+import android.provider.Settings;
 import android.os.Vibrator;
 import android.view.View;
 import android.view.Window;
@@ -52,6 +53,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TimerReceiver.ensureChannel(this);
+        EventAlarms.ensureChannels(this);
+        EventAlarms.scheduleNext(this);
 
         web = new WebView(this);
         web.setBackgroundColor(Color.TRANSPARENT);
@@ -111,7 +114,10 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         visible = true;
-        if (web != null) web.onResume();
+        if (web != null) {
+            web.onResume();
+            web.evaluateJavascript("window.ritmoResume&&window.ritmoResume()", null);
+        }
         TimerReceiver.clear(this);
     }
 
@@ -202,6 +208,38 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** Abre a tela do Android onde se libera cada permissão do alarme. */
+    private void openSetting(String which) {
+        String pkg = getPackageName();
+        Uri pkgUri = Uri.parse("package:" + pkg);
+        Intent i = null;
+        if ("notif".equals(which)) {
+            if (Build.VERSION.SDK_INT >= 33
+                    && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                    && !askedNotifications) {
+                askNotifications();
+                return;
+            }
+            i = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, pkg);
+        } else if ("fullscreen".equals(which) && Build.VERSION.SDK_INT >= 34) {
+            i = new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, pkgUri);
+        } else if ("exact".equals(which) && Build.VERSION.SDK_INT >= 31) {
+            i = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, pkgUri);
+        } else if ("battery".equals(which)) {
+            i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pkgUri);
+        }
+        if (i == null) i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkgUri);
+        try {
+            startActivity(i);
+        } catch (Exception e) {
+            try {
+                startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkgUri));
+            } catch (Exception ignored) {
+                toast("Abra os ajustes do Android › Apps › Ritmo.");
+            }
+        }
+    }
+
     private void startSave(String name, String content) {
         pendingSave = content;
         Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
@@ -249,6 +287,26 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setBars(String status, String nav, boolean light) {
             runOnUiThread(() -> applyBars(status, nav, light));
+        }
+
+        @JavascriptInterface
+        public void setEventAlarms(String json) {
+            EventAlarms.setAll(MainActivity.this, json);
+        }
+
+        @JavascriptInterface
+        public String alarmStatus() {
+            return EventAlarms.status(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public void openAlarmSetting(String which) {
+            runOnUiThread(() -> openSetting(which));
+        }
+
+        @JavascriptInterface
+        public void testAlarm() {
+            EventAlarms.test(MainActivity.this);
         }
 
         @JavascriptInterface

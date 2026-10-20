@@ -141,10 +141,11 @@ Na pasta `ritmo/` fica o **Ritmo**, um app de gestão pessoal para o celular, se
 - **Tarefas:** Lista com Entrada (GTD e regra dos 2 minutos), Eisenhower, Kanban, 1-3-5, Ivy Lee, ABCDE e 80/20.
 - **Hábitos:** sim ou não, ou quantidade (ex.: 8 copos de água); todo dia, em dias da semana ou X vezes por semana; e só nos dias de turno ou só nas folgas. Mostra a sequência, a constância dos últimos 30 dias e um mapa das últimas 18 semanas (toque num dia para marcar ou desmarcar).
 - **Foco:** Pomodoro, 52/17, 90/20, Flowtime e Timebox. O fim de cada etapa avisa por notificação com som, mesmo com a tela apagada.
+- **Alarme dos eventos:** quando um evento começa (ou 5, 10, 15, 30 ou 60 minutos antes), o celular toca como um despertador e mostra uma tela cheia por cima do bloqueio, como uma ligação, com **Adiar 5 min** e **Dispensar**. Cada evento escolhe entre alarme, notificação ou sem aviso; o padrão fica em Ajustes. Sem resposta em 2 minutos, o som para e fica um aviso na barra. Eventos de exemplo não tocam.
 
 **Instalar:** abra **Releases** no celular, baixe o `Ritmo-vN.apk` mais recente e instale (autorize instalar apps desconhecidos, se o Android pedir). Versões novas instalam por cima e mantêm os dados.
 
-**Primeiro uso:** em **Ajustes** (ícone de controles, no alto), ative a escala de turnos e informe a data de uma folga. O app abre com alguns exemplos marcados; apague em Ajustes › **Apagar exemplos**. Na primeira vez que o timer roda, o Android pede para mostrar notificações: permita, para o aviso de fim do foco.
+**Primeiro uso:** em **Ajustes** (ícone de controles, no alto), ative a escala de turnos e informe a data de uma folga. Ainda em Ajustes, na parte **Alarmes dos eventos**, toque em **Permitir** em cada item que estiver vermelho (notificações, tela cheia no bloqueio, alarmes exatos e bateria sem restrições) e use **Testar alarme**: bloqueie a tela e, em 5 segundos, o alarme deve tocar. O app abre com alguns exemplos marcados; apague em Ajustes › **Apagar exemplos**. Na primeira vez que o timer roda, o Android pede para mostrar notificações: permita, para o aviso de fim do foco.
 
 **Dados:** ficam salvos no próprio celular. Em Ajustes › **Exportar backup** você salva um arquivo `.json`; em **Importar backup** você traz os dados de volta, ou de outra cópia do Ritmo (como a que abre no Claude).
 

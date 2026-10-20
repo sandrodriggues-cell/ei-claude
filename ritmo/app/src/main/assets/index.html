@@ -290,6 +290,19 @@ main{padding-block:16px 104px;display:flex;flex-direction:column;gap:16px}
 .heat svg{width:100%;height:auto;display:block}
 .heat rect{cursor:pointer}
 
+.nal{display:flex;align-items:center;gap:6px}
+.nal svg{width:14px;height:14px;flex:none;color:var(--accent)}
+.bell{display:inline-flex;vertical-align:-2px;margin-left:5px;color:var(--accent)}
+.bell svg{width:13px;height:13px}
+.perms{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);margin-bottom:10px}
+.perm{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+.perm:first-child{border-top:0}
+.pdot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--crit)}
+.pdot.ok{background:var(--ok)}
+.ptx{flex:1;min-width:0;font-size:14px}
+.ptx small{display:block;color:var(--muted);font-size:12px}
+.pok{font-size:12px;color:var(--ok);font-weight:600}
+
 /* Botão flutuante e abas */
 .fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px),calc(50vw - 364px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:8;height:50px;padding:0 18px 0 14px;border-radius:16px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:15px;display:flex;align-items:center;gap:6px;box-shadow:var(--shadow)}
 .fab svg{width:20px;height:20px}
@@ -405,6 +418,7 @@ const IC={
   tarefas:'<rect x="3.5" y="4" width="5.5" height="5.5" rx="1.3"/><path d="M4.6 16.3l1.6 1.6 2.9-3.2M12 6.8h8.5M12 16.5h8.5"/>',
   habitos:'<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20.2 3.8v3.6h-3.6"/><path d="M8.4 12.3l2.5 2.5 4.8-5"/>',
   minus:'<path d="M5 12h14"/>',
+  bell:'<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 2h-14z"/><path d="M10 21h4"/>',
   foco:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M9.5 2.5h5M18.6 6.4l1.6-1.6"/>',
   book:'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15.5H6.5A1.5 1.5 0 0 0 5 20zM5 20a1.5 1.5 0 0 0 1.5 1.5H19M9 7.5h6"/>',
   sliders:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
@@ -426,7 +440,7 @@ const catVar=k=>`var(${(CATS[k]||CATS.pessoal)[1]})`;
 const QUAD={1:['Fazer agora','Urgente e importante','var(--crit)'],2:['Agendar','Importante, não urgente','var(--accent)'],3:['Delegar','Urgente, não importante','var(--info)'],4:['Eliminar','Nem urgente nem importante','var(--faint)']};
 const PRI={A:'Deve fazer — consequência séria se não fizer',B:'Deveria fazer — consequência leve',C:'Seria bom fazer — sem consequência',D:'Delegar para outra pessoa',E:'Eliminar da lista'};
 const SIZE={G:'Grande',M:'Média',P:'Pequena'};
-const DEF_SETTINGS={shift:{on:false,start:'22:00',end:'06:00',work:6,off:2,anchor:''},sleep:{on:false,start:'08:00',end:'14:00'},pomo:{focus:25,short:5,long:15,every:4}};
+const DEF_SETTINGS={shift:{on:false,start:'22:00',end:'06:00',work:6,off:2,anchor:''},sleep:{on:false,start:'08:00',end:'14:00'},pomo:{focus:25,short:5,long:15,every:4},alerts:{mode:'alarm',lead:0}};
 
 /* ---------- estado ---------- */
 const S={
@@ -609,6 +623,8 @@ function vHoje(){
   const late=S.tasks.filter(t=>t.date&&t.date<d&&!isDone(t)).length;
   const inbox=S.tasks.filter(t=>t.inbox&&!isDone(t)).length;
 
+  const na=nextAlarm();
+  if(na){const ad=new Date(na.at),ai=isoOf(ad);shift+=`<div class="next-off nal">${ic('bell')}<span>Próximo alarme · <b>${ai===today()?'hoje':dLabel(ai)} ${pad(ad.getHours())}:${pad(ad.getMinutes())}</b> · ${esc(na.t)}</span></div>`;}
   let h=`<section class="card hero"><div class="hero-grid"><div style="min-width:0"><div class="eyebrow">${DOW[x.getDay()]}</div><h1 class="display">${x.getDate()} de ${MES[x.getMonth()]}</h1><div class="clock mono" id="clock"></div></div>${dialSvg(items)}</div>${shift}</section>`;
   h+=`<section class="stats" aria-label="Resumo de hoje"><div class="stat"><div class="v">${done}<small>/${tt.length}</small></div><div class="l">Tarefas hoje</div></div><div class="stat"><div class="v">${dur(fm).replace(' min','<small> min</small>')}</div><div class="l">Foco hoje</div></div><div class="stat"><div class="v">${cycles}</div><div class="l">Sessões</div></div></section>`;
   if(T.running||T.remain!=null||T.flowAcc)h+=`<button type="button" class="card banner" data-act="tab" data-tab="foco" style="border:0"><span>${esc(METHODS[T.method].n)} · ${T.phase==='focus'?'foco':'pausa'}${T.running?'':' (pausado)'}</span><b class="mono" id="miniTime"></b></button>`;
@@ -622,7 +638,7 @@ function vHoje(){
   h+=hojeHabits();
   h+=`<section class="card"><div class="sec-h"><h2 class="title">Agenda de hoje</h2><button type="button" class="link" data-act="open-agenda" data-d="${d}">Abrir agenda</button></div>`;
   if(!items.length)h+=`<div class="empty">Nenhum compromisso hoje. Bloqueie horários na Agenda.</div>`;
-  else h+=`<div class="ag">${items.map(it=>{const cls=it.e<=n?'past':it.s<=n?'live':'';const col=it.kind==='shift'?'var(--accent)':it.kind==='sleep'?'var(--c-desc)':catVar(it.cat);const act=it.kind==='ev'?`data-act="edit-ev" data-id="${esc(it.id)}"`:'data-act="settings"';return `<button type="button" class="ag-row ${cls}" ${act}><span class="ag-time">${hhmm(it.s)}–${hhmm(it.e)}</span><span class="ag-t"><i class="cat-dot" style="--cat:${col}"></i>${esc(it.title)}${it.sub?`<span class="muted small">· ${esc(it.sub)}</span>`:''}${it.ex?' <span class="tag ex">exemplo</span>':''}</span></button>`;}).join('')}</div>`;
+  else h+=`<div class="ag">${items.map(it=>{const cls=it.e<=n?'past':it.s<=n?'live':'';const col=it.kind==='shift'?'var(--accent)':it.kind==='sleep'?'var(--c-desc)':catVar(it.cat);const act=it.kind==='ev'?`data-act="edit-ev" data-id="${esc(it.id)}"`:'data-act="settings"';return `<button type="button" class="ag-row ${cls}" ${act}><span class="ag-time">${hhmm(it.s)}–${hhmm(it.e)}</span><span class="ag-t"><i class="cat-dot" style="--cat:${col}"></i>${esc(it.title)}${it.sub?`<span class="muted small">· ${esc(it.sub)}</span>`:''}${it.ex?' <span class="tag ex">exemplo</span>':''}${evBell(it)}</span></button>`;}).join('')}</div>`;
   h+=`</section>`;
 
   const cap={G:1,M:3,P:5},rows=Object.keys(cap).map(k=>{const ts=tt.filter(t=>t.size===k);const dn=ts.filter(isDone).length;let m='';for(let i=0;i<cap[k];i++)m+=`<i class="${i<dn?'done':i<ts.length?'on':''}"></i>`;return `<div class="p135-row"><span>${k==='G'?'1 grande':k==='M'?'3 médias':'5 pequenas'}</span><span class="meter" aria-hidden="true">${m}</span><span class="c">${ts.length}/${cap[k]}</span></div>`;}).join('');
@@ -675,7 +691,7 @@ function vAgenda(){
     const top=`calc(${(it.s/60).toFixed(3)} * var(--hh))`,ht=`max(24px, calc(${((it.e-it.s)/60).toFixed(3)} * var(--hh) - 2px))`;
     const left=`calc(${it.lane} * 100% / ${it.lanes} + 4px)`,wd=`calc(100% / ${it.lanes} - 8px)`;
     const cls=it.kind==='ev'?'ev':it.kind;const act=it.kind==='ev'?`data-act="edit-ev" data-id="${esc(it.id)}"`:'data-act="settings"';
-    tl+=`<button type="button" class="blk ${cls}" style="top:${top};height:${ht};left:${left};width:${wd};--cat:${catVar(it.cat)}" ${act}><b>${esc(it.title)}${it.ex?' · exemplo':''}</b><span>${hhmm(it.s)}–${hhmm(it.e)}${it.rep==='daily'?' · diário':it.rep==='weekly'?' · semanal':''}</span></button>`;
+    tl+=`<button type="button" class="blk ${cls}" style="top:${top};height:${ht};left:${left};width:${wd};--cat:${catVar(it.cat)}" ${act}><b>${esc(it.title)}${it.ex?' · exemplo':''}${evBell(it)}</b><span>${hhmm(it.s)}–${hhmm(it.e)}${it.rep==='daily'?' · diário':it.rep==='weekly'?' · semanal':''}</span></button>`;
   });
   if(d===td)tl+=`<div class="now" id="nowLine" style="top:calc(${(nowMin()/60).toFixed(3)} * var(--hh))"></div>`;
   h+=`<section class="card" style="padding:14px 12px 14px 8px"><div class="tl" id="tl">${tl}</div></section>`;
@@ -1101,6 +1117,54 @@ function exampleData(){
     ]
   };
 }
+/* ---------- alarmes dos eventos (app Android) ---------- */
+const ALERT_OPTS=[['alarm','Alarme'],['notif','Notificação'],['off','Sem aviso']];
+const LEAD_OPTS=[[0,'Na hora'],[5,'5 min'],[10,'10 min'],[15,'15 min'],[30,'30 min'],[60,'1 h']];
+const alertOf=e=>{const a=e.alert||((S.settings.alerts||{}).mode)||'alarm';return ALERT_OPTS.some(o=>o[0]===a)?a:'alarm';};
+const leadOf=e=>{const v=e.lead!=null&&e.lead!==''?+e.lead:+((S.settings.alerts||{}).lead||0);return isNaN(v)?0:Math.max(0,Math.min(240,v));};
+const canAlarm=()=>!!(AND&&AND.setEventAlarms);
+function alarmList(){
+  const now=Date.now(),td=today(),out=[];
+  for(let i=0;i<15;i++){
+    const d=addDays(td,i);
+    eventsOn(d).forEach(it=>{
+      const e=S.events.find(x=>x.id===it.id);if(!e||e.ex)return;
+      const mode=alertOf(e);if(mode==='off')return;
+      const lead=leadOf(e),x=parseISO(d),startMs=new Date(x.getFullYear(),x.getMonth(),x.getDate(),Math.floor(it.s/60),it.s%60).getTime(),at=startMs-lead*60000;
+      if(at<now-60000)return;
+      out.push({k:`${e.id}@${startMs}`,at,t:e.title||'Evento',s:`${hhmm(it.s)}–${hhmm(it.e)} · ${(CATS[e.cat]||CATS.pessoal)[0]}`,start:hhmm(it.s),lead,m:mode,d});
+    });
+  }
+  return out.sort((a,b)=>a.at-b.at).slice(0,200);
+}
+let alarmKey='',alarmT=null,askedNotif=false;
+function pushAlarms(){
+  if(!canAlarm()||!S.ready)return;
+  clearTimeout(alarmT);
+  alarmT=setTimeout(()=>{
+    const list=alarmList(),json=JSON.stringify(list.map(({d,...r})=>r));
+    if(json===alarmKey)return;alarmKey=json;
+    try{AND.setEventAlarms(json);}catch(e){}
+    if(list.length&&!askedNotif&&AND.requestNotifications){askedNotif=true;try{AND.requestNotifications();}catch(e){}}
+  },400);
+}
+function nextAlarm(){if(!canAlarm())return null;const l=alarmList();return l.length?l[0]:null;}
+function alarmStatus(){if(!AND||!AND.alarmStatus)return null;try{return JSON.parse(AND.alarmStatus());}catch(e){return null;}}
+function alStatusHtml(){
+  const s=alarmStatus();
+  if(!s)return '<p class="hint">Os alarmes tocam no app Ritmo do celular. Aqui você escolhe como os eventos avisam; a escolha vai junto no backup.</p>';
+  const row=(ok,label,desc,w)=>`<div class="perm"><i class="pdot ${ok?'ok':''}"></i><span class="ptx"><b>${label}</b><small>${desc}</small></span>${ok?'<span class="pok">Ativo</span>':`<button type="button" class="link" data-act="al-open" data-w="${w}">Permitir</button>`}</div>`;
+  return `<div class="perms">${row(s.notif,'Notificações','Sem elas o alarme não toca','notif')}${row(s.full,'Tela cheia no bloqueio','Mostra o alarme como uma ligação','fullscreen')}${row(s.exact,'Alarmes no horário exato','Toca no minuto certo','exact')}${row(s.battery,'Bateria sem restrições','Evita que o Android segure o alarme','battery')}</div><button type="button" class="btn" data-act="al-test">Testar alarme (toca em 5 segundos)</button>`;
+}
+window.ritmoResume=function(){
+  const b=$('#alStatus');if(b&&sheetOpen())b.innerHTML=alStatusHtml();
+  if(!sheetOpen())render();
+};
+function evBell(it){
+  if(it.kind!=='ev'||!canAlarm())return '';
+  const e=S.events.find(x=>x.id===it.id);if(!e||e.ex||alertOf(e)==='off')return '';
+  return `<span class="bell" title="${alertOf(e)==='alarm'?'Alarme':'Notificação'}${leadOf(e)?` ${leadOf(e)} min antes`:' na hora'}">${ic('bell')}</span>`;
+}
 /* ---------- folhas: tarefa, evento, seleção, métodos, ajustes ---------- */
 const segH=(name,opts,val,o)=>`<div class="seg" data-seg="${name}" ${o&&o.req?'data-req="1"':''}>${opts.map(([v,l,ti])=>`<button type="button" data-act="seg" data-v="${esc(v)}" aria-pressed="${String(val)===String(v)}"${ti?` title="${esc(ti)}"`:''}>${l}</button>`).join('')}</div>`;
 const tgH=(name,label,sub,on)=>`<button type="button" class="toggle" data-act="tg" data-tg="${name}" aria-pressed="${!!on}"><span>${label}${sub?`<small>${sub}</small>`:''}</span><span class="swt"></span></button>`;
@@ -1144,6 +1208,8 @@ function openEvent(id,pre){
 <div class="grid2"><div class="field"><label class="lbl" for="eStart">Início</label><input class="inp" type="time" id="eStart" name="start" required value="${esc(v.start)}"></div><div class="field"><label class="lbl" for="eEnd">Fim</label><input class="inp" type="time" id="eEnd" name="end" required value="${esc(v.end)}"></div></div>
 <div class="field"><span class="lbl">Categoria</span>${segH('cat',Object.keys(CATS).map(k=>[k,`<i class="cat-dot" style="--cat:${catVar(k)};display:inline-block;margin-right:6px"></i>${CATS[k][0]}`]),v.cat||'pessoal',{req:1})}</div>
 <div class="field"><span class="lbl">Repetir</span>${segH('rep',[['','Não repete'],['daily','Todo dia'],['weekly','Toda semana']],v.rep||'',{req:1})}</div>
+<div class="field"><span class="lbl">Aviso</span>${segH('alert',ALERT_OPTS,alertOf(v),{req:1})}</div>
+<div class="field"><span class="lbl">Antecedência</span>${segH('lead',LEAD_OPTS,leadOf(v),{req:1})}${canAlarm()?'':'<span class="hint">O alarme toca no app Ritmo do celular.</span>'}</div>
 <div class="field"><label class="lbl" for="eNotes">Notas</label><textarea class="inp" id="eNotes" name="notes" rows="2">${esc(v.notes||'')}</textarea></div>
 <div class="btns"><button type="submit" class="btn primary">Salvar</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>
 ${e?`<button type="button" class="btn danger" data-act="del-ev" data-id="${esc(e.id)}">${e.rep?'Excluir evento e repetições':'Excluir evento'}</button>`:''}
@@ -1197,7 +1263,8 @@ function readSettings(f){
   const num=(n,d,a,b)=>{const v=parseInt(el(n).value,10);return isNaN(v)?d:Math.min(b,Math.max(a,v));};
   return {shift:{on:tg('shon'),start:el('sStart').value||'22:00',end:el('sEnd').value||'06:00',work:num('sWork',6,1,30),off:num('sOff',2,0,30),anchor:el('sAnchor').value||''},
     sleep:{on:tg('slon'),start:el('slStart').value||'08:00',end:el('slEnd').value||'14:00'},
-    pomo:{focus:num('pF',25,1,180),short:num('pS',5,1,60),long:num('pL',15,1,90),every:num('pE',4,1,12)}};
+    pomo:{focus:num('pF',25,1,180),short:num('pS',5,1,60),long:num('pL',15,1,90),every:num('pE',4,1,12)},
+    alerts:{mode:segOf(f)('alMode')||'alarm',lead:+segOf(f)('alLead')||0}};
 }
 const offHtml=offs=>offs.length?`Próximas folgas: ${offs.map(([a,b])=>`<b>${dLabel(a,1)}${b!==a?' a '+dLabel(b,1):''}</b>`).join(' · ')}`:'Ative a escala e informe a data de uma folga para ver a prévia.';
 function offPreview(f){const box=$('#offPrev');if(!box)return;const prev=S.settings;try{S.settings=readSettings(f);box.innerHTML=offHtml(upcomingOffs(4));}finally{S.settings=prev;}}
@@ -1213,6 +1280,10 @@ ${tgH('shon','Usar escala de turnos','Mostra turnos e folgas no calendário e na
 <div class="mgroup">Sono</div>
 ${tgH('slon','Bloco de sono depois do turno','Aparece na agenda nos dias em que você sai do turno',sl.on)}
 <div class="grid2"><div class="field"><label class="lbl" for="slStart">Dormir às</label><input class="inp" type="time" id="slStart" name="slStart" value="${esc(sl.start)}"></div><div class="field"><label class="lbl" for="slEnd">Acordar às</label><input class="inp" type="time" id="slEnd" name="slEnd" value="${esc(sl.end)}"></div></div>
+<div class="mgroup">Alarmes dos eventos</div>
+<div class="field"><span class="lbl">Aviso padrão dos eventos</span>${segH('alMode',ALERT_OPTS,(s.alerts||{}).mode||'alarm',{req:1})}</div>
+<div class="field"><span class="lbl">Antecedência padrão</span>${segH('alLead',LEAD_OPTS,(s.alerts||{}).lead||0,{req:1})}<span class="hint">Vale para os eventos sem escolha própria. Cada evento pode mudar isso no editor.</span></div>
+<div id="alStatus" class="field">${alStatusHtml()}</div>
 <div class="mgroup">Pomodoro</div>
 <div class="grid2"><div class="field"><label class="lbl" for="pF">Foco (min)</label><input class="inp" type="number" id="pF" name="pF" min="1" max="180" inputmode="numeric" value="${esc(p.focus)}"></div><div class="field"><label class="lbl" for="pS">Pausa curta (min)</label><input class="inp" type="number" id="pS" name="pS" min="1" max="60" inputmode="numeric" value="${esc(p.short)}"></div></div>
 <div class="grid2"><div class="field"><label class="lbl" for="pL">Pausa longa (min)</label><input class="inp" type="number" id="pL" name="pL" min="1" max="90" inputmode="numeric" value="${esc(p.long)}"></div><div class="field"><label class="lbl" for="pE">Ciclos até a longa</label><input class="inp" type="number" id="pE" name="pE" min="1" max="12" inputmode="numeric" value="${esc(p.every)}"></div></div>
@@ -1246,7 +1317,7 @@ const FORMS={
     const el=n=>f.elements.namedItem(n),seg=segOf(f),title=el('title').value.trim();
     if(!title){el('title').focus();return;}
     const id=f.dataset.id,old=id?S.events.find(x=>x.id===id):null;
-    const ev=Object.assign({},old||{id:uid('e'),created:Date.now()},{title,date:el('date').value||S.sel,start:el('start').value||'09:00',end:el('end').value||'10:00',cat:seg('cat')||'pessoal',rep:seg('rep')||'',notes:el('notes').value.trim()||null});
+    const ev=Object.assign({},old||{id:uid('e'),created:Date.now()},{title,date:el('date').value||S.sel,start:el('start').value||'09:00',end:el('end').value||'10:00',cat:seg('cat')||'pessoal',rep:seg('rep')||'',alert:seg('alert')||'alarm',lead:+seg('lead')||0,notes:el('notes').value.trim()||null});
     delete ev.ex;if(f.dataset.task)ev.task=f.dataset.task;
     Store.putEvent(ev);closeSheet();S.sel=ev.date;S.calMonth=ev.date.slice(0,7);render();toast(old?'Evento salvo':'Evento criado');
   },
@@ -1351,6 +1422,8 @@ const ACT={
   'h-arch'(el){const h=S.habits.find(x=>x.id===el.dataset.id);if(!h)return;Store.putHabit(Object.assign({},h,{archived:!h.archived}));closeSheet();render();toast(h.archived?'Hábito reativado':'Hábito arquivado');},
   'h-del'(el){if(!armed(el,'Toque de novo para excluir'))return;Store.delHabit(el.dataset.id);closeSheet();render();toast('Hábito excluído');},
   'show-arch'(){S.showArch=!S.showArch;render();},
+  'al-open'(el){try{AND.openAlarmSetting(el.dataset.w);}catch(e){}},
+  'al-test'(){if(!AND||!AND.testAlarm){toast('O teste funciona no app Ritmo do celular.');return;}try{AND.testAlarm();toast('Bloqueie a tela: o alarme toca em 5 segundos.');}catch(e){}},
   export:()=>exportData(),
   import(){const i=$('#impFile');if(i){i.value='';i.click();}},
   'imp-go':()=>applyImport(),
@@ -1383,6 +1456,7 @@ function render(){
   const fab=$('#fab'),fc={hoje:['new-task','Tarefa','Nova tarefa'],calendario:['new-ev','Evento','Novo evento'],agenda:['new-ev','Evento','Novo evento'],tarefas:['new-task','Tarefa','Nova tarefa'],habitos:['new-habit','Hábito','Novo hábito']}[S.tab];
   if(fc){fab.hidden=false;fab.dataset.act=fc[0];fab.innerHTML=ic('plus')+fc[1];fab.setAttribute('aria-label',fc[2]);}else fab.hidden=true;
   syncBars();
+  pushAlarms();
   if(S.scrollAg&&S.tab==='agenda'){
     S.scrollAg=false;const tl=$('#tl');
     if(tl){const hh=tl.getBoundingClientRect().height/24,its=dayItems(S.sel).filter(i=>i.kind==='ev'),m=S.sel===today()?nowMin():(its[0]?its[0].s:480);
