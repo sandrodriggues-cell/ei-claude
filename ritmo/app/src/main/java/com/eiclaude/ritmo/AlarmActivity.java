@@ -39,12 +39,13 @@ public class AlarmActivity extends Activity {
     static final String EXTRA_LEAD = "lead";
     static final String EXTRA_HEAD = "head";
 
-    private static final int BG = 0xFF0D1220;
-    private static final int LINE = 0xFF2F3B55;
-    private static final int FG = 0xFFECEFF6;
-    private static final int MUTED = 0xFF9CA6BA;
-    private static final int GOLD = 0xFFF5B83D;
-    private static final int GOLD_INK = 0xFF1D1405;
+    // Cores do Feito no tema escuro (preto, branco e o azul de destaque).
+    private static final int BG = 0xFF000000;
+    private static final int LINE = 0xFF2C2C2E;
+    private static final int FG = 0xFFFFFFFF;
+    private static final int MUTED = 0xFF8E8E93;
+    private static final int GOLD = 0xFF2E95FF;
+    private static final int GOLD_INK = 0xFFFFFFFF;
 
     private static WeakReference<AlarmActivity> current = new WeakReference<>(null);
 

@@ -274,7 +274,7 @@ final class EventAlarms {
         if (!"alarm".equals(o.optString("m"))) {
             Notification n = new Notification.Builder(c, CH_NOTIF)
                     .setSmallIcon(R.drawable.ic_stat)
-                    .setColor(0xFFF2A417)
+                    .setColor(0xFF0083FF)
                     .setContentTitle(title)
                     .setContentText(headline(o))
                     .setStyle(new Notification.BigTextStyle().bigText(text))
@@ -291,7 +291,7 @@ final class EventAlarms {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification.Builder b = new Notification.Builder(c, CH_ALARM)
                 .setSmallIcon(R.drawable.ic_stat)
-                .setColor(0xFFF2A417)
+                .setColor(0xFF0083FF)
                 .setContentTitle(title)
                 .setContentText(headline(o))
                 .setStyle(new Notification.BigTextStyle().bigText(text))
@@ -385,7 +385,7 @@ final class EventAlarms {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Notification n = new Notification.Builder(c, CH_MISSED)
                 .setSmallIcon(R.drawable.ic_stat)
-                .setColor(0xFFF2A417)
+                .setColor(0xFF0083FF)
                 .setContentTitle(title)
                 .setContentText(start.length() > 0 ? "Alarme das " + start + " sem resposta" : "Alarme sem resposta")
                 .setAutoCancel(true)

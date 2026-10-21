@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg_dark">#0D1220</color>
-    <color name="surface_dark">#141B2B</color>
+    <color name="bg_dark">#000000</color>
+    <color name="surface_dark">#000000</color>
     <color name="bg_light">#FFFFFF</color>
     <color name="surface_light">#FFFFFF</color>
-    <color name="icon_bg">#1D2B4F</color>
+    <color name="icon_bg">#0083FF</color>
 </resources>

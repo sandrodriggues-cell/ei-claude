@@ -134,13 +134,14 @@ O mostrador é gerado por `mostrador/gerar.py` (desenhos, prévia e `res/raw/wat
 
 ## Feito: tarefas, calendário, meu dia e hábitos (celular)
 
-Na pasta `ritmo/` (nome antigo do app) fica o **Feito**, um app de organização pessoal para o celular, separado do Ei Claude. A estrutura segue a do Any.do:
+Na pasta `ritmo/` (nome antigo do app) fica o **Feito**, um app de organização pessoal para o celular, separado do Ei Claude. O visual e a navegação seguem os do Any.do, com as medidas tiradas de capturas do app (guia completo em `ritmo/DESIGN.md`): fundo branco ou preto, azul como cor de destaque e a fonte Inter, que já vem dentro do app.
 
-- **Tarefas:** listas com cores e as visões Todas as tarefas, Próximos 7 dias, Entrada e Concluídas, agrupadas em Atrasadas, Hoje, Amanhã, Próximos e Algum dia. Cada tarefa tem data, lembrete, repetição, prioridade, etiquetas, subtarefas e notas, e a lista pode ser vista em linhas ou em quadro. Deslize para a direita para concluir e para a esquerda para excluir.
-- **Calendário:** visões Agenda, Dia, 3 dias e Semana, com o mês completo ao tocar no título. Eventos podem ser de dia inteiro e repetir todo dia, em dias úteis, toda semana, todo mês ou todo ano.
-- **Meu dia:** começa em branco toda manhã. Sugestões trazem o que está atrasado, para hoje ou com prioridade alta, e o Planejar meu dia passa por elas uma a uma. Tem modo foco com Pomodoro, 52/17, 90/20, livre e tempo definido.
-- **Hábitos:** sim ou não, ou quantidade (ex.: 8 copos de água); todo dia, em dias da semana ou X vezes por semana, com lembrete. Mostra a semana em anéis, a sequência, a constância e um calendário de cada hábito.
-- **Criar rápido:** o botão + entende frases como “Pagar a conta amanhã às 18h #Casa !alta”.
+- **Navegação:** sem barra de abas. O botão **Início**, embaixo à esquerda, leva a Meu dia, Todas as tarefas, Próximos 7 dias, Calendário, Hábitos, listas, etiquetas, Concluídas e Ajustes, com busca no topo.
+- **Barra "Eu quero…":** cria o que faz sentido na tela (tarefa, evento ou hábito) e entende frases como “Pagar a conta amanhã às 18h #Casa !alta”. Ao tocar nela aparecem os atalhos Mais tarde hoje, Amanhã, Próxima semana, Algum dia e Personalizado.
+- **Tarefas:** seções Hoje (com as atrasadas), Amanhã, Em breve e Outro dia. Toque no nome da seção para fechar (aparece o contador azul) e no + para adicionar nela. Cada tarefa tem data, lembrete, repetição, prioridade, etiquetas, subtarefas e notas. Deslize para a direita para concluir e para a esquerda para excluir; o quadrado no topo mostra ou esconde as concluídas.
+- **Calendário:** visões Agenda, Dia, 3 dias e Semana (menu de 3 linhas), mês aberto ao tocar no título, faixa de dia inteiro e linha da hora atual.
+- **Meu dia:** começa em branco toda manhã; a lâmpada traz sugestões e o Planejar meu dia passa por elas uma a uma (Hoje, Mais tarde, Feito). O relógio abre o modo foco (Pomodoro, 52/17, 90/20, livre e tempo definido).
+- **Hábitos:** sim ou não, ou quantidade (ex.: 8 copos de água); todo dia, em dias da semana ou X vezes por semana, com lembrete. Mostra a semana em anéis, a sequência, a constância e o histórico de cada hábito.
 
 **Instalar:** abra **Releases** no celular, baixe o `Feito-vN.apk` mais recente e instale (autorize instalar apps desconhecidos, se o Android pedir). Versões novas instalam por cima e mantêm os dados, inclusive os da época em que o app se chamava Ritmo.
 
